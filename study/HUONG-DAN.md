@@ -31,7 +31,7 @@ Thời gian cài đặt: khoảng 20 phút. Không cần cài phần mềm nào.
 
 1. Vào **Authentication** → **Users** → **Add user** → **Create new user**.
 2. Nhập đúng email ở bước 2 và một mật khẩu. Chọn **Auto Confirm User**. Bấm **Create user**.
-3. Nên làm thêm: vào **Authentication** → **Sign In / Providers**, tắt **Allow new users to sign up** để không ai tự đăng ký được. (Kể cả không tắt, người lạ đăng ký cũng không sửa được bài vì không có trong bảng admins.)
+3. Vào **Authentication** → **Sign In / Providers** → **Email**: giữ **bật** "Allow new users to sign up" (để học sinh tự tạo tài khoản) và **tắt** "Confirm email" (học sinh đăng nhập bằng tên đăng nhập, không dùng email thật). Bấm **Save**. Người tự đăng ký chỉ lưu được tiến độ của chính mình, không sửa được bài học vì không có trong bảng admins.
 
 ## Bước 4. Điền thông tin kết nối
 
@@ -81,7 +81,11 @@ Cách khác cũng miễn phí: Cloudflare Pages (Workers & Pages → Create → 
 
 **Supabase tạm dừng dự án?** Gói free tự tạm dừng nếu 7 ngày liền không có ai truy cập. Khi đó trang học sinh vẫn chạy bằng bản lưu sẵn, còn bạn vào supabase.com bấm **Restore project** để bật lại.
 
-**Tiến độ học của học sinh lưu ở đâu?** Trên trình duyệt của máy học sinh. Đổi máy hoặc xóa dữ liệu trình duyệt thì tiến độ bắt đầu lại.
+**Tiến độ học của học sinh lưu ở đâu?** Nếu học sinh bấm **Đăng nhập** ở trang chủ và tạo tài khoản (tên đăng nhập + mật khẩu, không cần email), tiến độ của cả 6 môn được lưu vào database và học tiếp được trên máy khác. Khi chưa đăng nhập, tiến độ chỉ lưu trên trình duyệt; lần đầu đăng nhập, phần đã làm được gộp vào tài khoản.
+
+**Xem tiến độ cả lớp?** Trong trang admin, chọn môn rồi bấm **Tiến độ học sinh**.
+
+**Học sinh quên mật khẩu?** Vào Supabase → Authentication → Users, tìm `tendangnhap@hocsinh.sotay`, bấm vào và đặt mật khẩu mới.
 
 **Khi nào cần đăng lại website?** Chỉ khi sửa giao diện (file .html). Sửa bài học trong trang admin thì **không** cần.
 

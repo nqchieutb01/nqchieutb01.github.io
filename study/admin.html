@@ -124,6 +124,12 @@ textarea.code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;f
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.bad{background:var(--bad)}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
+table.stu{border-collapse:collapse;width:100%;font-size:14px}
+table.stu th,table.stu td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;vertical-align:middle}
+table.stu th{font-size:12.5px;color:var(--muted);background:var(--accent-soft)}
+table.stu td.zero{color:var(--muted);opacity:.6}
+table.stu .pct{display:inline-block;width:60px;height:6px;border-radius:999px;background:var(--line);margin-right:8px;vertical-align:middle;overflow:hidden}
+table.stu .pct i{display:block;height:100%;background:linear-gradient(90deg,#F48FC6,#A66BE0)}
 /* ===== Giao diện hồng tím ===== */
 :root{
   --paper:#FFF5FA; --ink:#3B1F4A; --muted:#7D6290; --line:#EFD3E6; --card:#FFFFFF;
@@ -346,6 +352,7 @@ function renderSide(){
    <div class="tools">
      <button class="btn ghost" id="addch">+ Thêm chương</button>
      ${intlMissing()?`<button class="btn" id="intlup">🌍 Thêm “Nguồn từ nước ngoài” (${intlMissing()} mục mới)</button>`:''}
+     <button class="btn ghost" id="stu">Tiến độ học sinh</button>
      <button class="btn ghost" id="exp">Tải file sao lưu (.json)</button>
      <label class="btn ghost" style="text-align:center">Khôi phục từ file sao lưu<input type="file" accept=".json,application/json" id="imp" hidden></label>
    </div>`;
@@ -353,6 +360,7 @@ function renderSide(){
   s.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>move(+b.dataset.up,-1));
   s.querySelectorAll('[data-down]').forEach(b=>b.onclick=()=>move(+b.dataset.down,1));
   document.getElementById('addch').onclick = addChapter;
+  document.getElementById('stu').onclick = students;
   document.getElementById('exp').onclick = exportJson;
   const iu=document.getElementById('intlup'); if(iu) iu.onclick = addIntl;
   document.getElementById('imp').onchange = importJson;
@@ -613,6 +621,32 @@ async function importJson(ev){
   const { error } = await sb.from('chapters').upsert(rows.map((r,i)=>({...r, subject:SUBJECT, position:r.position||i+1})));
   if(error){ toast('Khôi phục thất bại: '+error.message, true); return; }
   toast('Đã khôi phục '+rows.length+' chương'); await loadAll();
+}
+
+/* ---------- Tiến độ học sinh ---------- */
+async function students(){
+  const m = document.getElementById('main');
+  m.innerHTML = '<p class="muted" style="padding:30px">Đang tải tiến độ học sinh…</p>';
+  const { data, error } = await sb.from('progress').select('user_id,display_name,data,updated_at').eq('subject',SUBJECT).order('display_name');
+  if(error){ m.innerHTML = `<div class="panel"><h2 style="font-size:20px">Chưa xem được tiến độ</h2><p class="err">${esc(error.message)}</p><p class="muted">Bạn đã chạy phần "Tài khoản học sinh" trong file supabase-setup.sql chưa?</p></div>`; return; }
+  const chs = chapters.filter(c=>!c._new);
+  const cell = (d,c)=>{ const qb=(d.quiz||{})[c.id]||0, ed=c.ex.filter((_,k)=>(d.ex||{})[c.id+'-'+k]).length; return {qb,ed,qn:c.quiz.length,en:c.ex.length}; };
+  const rows = (data||[]).map(r=>{
+    const d = r.data||{}; let got=0, tot=0;
+    const cells = chs.map(c=>{ const x=cell(d,c); got+=x.qb+x.ed; tot+=x.qn+x.en; return x; });
+    return { name:r.display_name||'(chưa đặt tên)', at:r.updated_at, pct:Math.round(100*got/Math.max(1,tot)), cells };
+  });
+  const fmtT = t => t ? new Date(t).toLocaleString('vi-VN',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '';
+  m.innerHTML = `<div class="ed-head"><h2>Tiến độ học sinh</h2><button class="btn ghost sm" id="stu-r">Tải lại</button></div>
+    <p class="help" style="margin:-4px 0 14px">${rows.length} học sinh đã đăng nhập và làm bài. Mỗi ô ghi: số câu ôn tập đúng / tổng câu, số bài nâng cao đã giải / tổng bài.</p>
+    ${rows.length ? `<div class="panel" style="padding:0;overflow-x:auto"><table class="stu">
+      <thead><tr><th>Học sinh</th><th>Tổng</th>${chs.map((c,i)=>`<th title="${esc(c.title)}">${esc(c.icon)} C${i+1}</th>`).join('')}<th>Lần cuối</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr><td><b>${esc(r.name)}</b></td><td><span class="pct"><i style="width:${r.pct}%"></i></span>${r.pct}%</td>
+        ${r.cells.map(x=>`<td class="${x.qb+x.ed?'':'zero'}">${x.qb}/${x.qn}<br><span class="muted">${x.ed}/${x.en}</span></td>`).join('')}
+        <td class="muted">${fmtT(r.at)}</td></tr>`).join('')}</tbody></table></div>`
+    : `<div class="panel empty"><p class="muted">Chưa có học sinh nào lưu tiến độ. Học sinh bấm "Đăng nhập" ở trang chủ để tạo tài khoản.</p></div>`}`;
+  document.getElementById('stu-r').onclick = students;
+  document.querySelectorAll('.chlist li.on').forEach(li=>li.classList.remove('on'));
 }
 
 window.addEventListener('beforeunload', e=>{ if(chapters.some(c=>c._dirty)){ e.preventDefault(); e.returnValue=''; } });
