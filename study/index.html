@@ -227,6 +227,19 @@ body[data-subj="dia-8"]{--accent:#2C7FB8;--accent-soft:rgba(44,127,184,.11);--ac
   :root:not([data-theme="light"]) .subj button[aria-pressed="true"]{color:#1E1426}
 }
 .idx-no{color:var(--accent)}
+/* ===== Nguồn từ nước ngoài ===== */
+.sec.intl{border:2px dashed var(--accent);background:linear-gradient(var(--accent-soft),transparent 140px),var(--card)}
+.sec.intl>h3::before{content:"🌍 "}
+.tag.intl{background:var(--accent);color:#fff}
+.vocab{font-size:14.5px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:10px 0}
+.src{font-size:13px;color:var(--muted);margin:10px 0 0;font-style:italic}
+.src a{color:var(--accent);font-weight:600;word-break:break-word}
+.ex.intl{border:2px dashed var(--accent)}
+.dang.intl{border-color:var(--accent);color:var(--accent);font-weight:700}
+.dang.intl::before{content:"🌍 "}
+.extra .wide{grid-column:1/-1;border-style:dashed;border-color:var(--accent)}
+.intl-go{margin:-4px 0 18px;display:flex;justify-content:flex-end}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tag.intl{color:#1E1426}}
 @media(max-width:420px){.tab{padding:6px 11px;font-size:13.5px}.tab .n{display:none}}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -312,6 +325,7 @@ function home(){
   <div class="extra">
     <button data-go="review"><b>Ôn tập tổng hợp</b><span>10 câu ngẫu nhiên từ mọi chương</span></button>
     <button data-go="formulas"><b>${SUBJ.sheet}</b><span>${SUBJ.sheetSub}</span></button>
+    ${hasIntl()?`<button data-go="intl" class="wide"><b>🌍 ${INTL}</b><span>Lý thuyết và bài tập kinh điển từ các trang tiếng Anh uy tín (OpenStax, AoPS…), có ghi nguồn</span></button>`:''}
   </div>
   <div class="howto"><b>Cách học mỗi chương:</b>
     <ol><li>Đọc ${SUBJ.noEx?'bài':'lý thuyết'}, chú ý phần tô vàng và các bẫy hay gặp.</li>
@@ -324,13 +338,14 @@ function home(){
   app.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>chapter(+b.dataset.ch,'theory'));
   app.querySelector('[data-go=review]').onclick=review;
   app.querySelector('[data-go=formulas]').onclick=formulas;
+  const gi=app.querySelector('[data-go=intl]'); if(gi) gi.onclick=intlPage;
   document.getElementById('reset').onclick=()=>{ if(confirm('Xóa toàn bộ tiến độ học môn '+SUBJ.name+'?')){prog={quiz:{},ex:{}};save();home();} };
   window.scrollTo(0,0);
 }
 
 /* =================== CHƯƠNG =================== */
 const TABS=()=>[['theory',SUBJ.noEx?'Bài học':'Lý thuyết'],['lab',SUBJ.lab],['quiz','Ôn tập'],['ex','Bài tập']];
-function chapter(i,tab){
+function chapter(i,tab,dg){
   if(stopAnim){stopAnim();stopAnim=null}
   const c = CH[i];
   if(tab==='lab' && !hasLab(c)) tab='theory';
@@ -350,7 +365,7 @@ function chapter(i,tab){
   if(tab==='quiz' && !c.quiz.length) pane.innerHTML='<p class="muted">Chương này chưa có câu hỏi ôn tập.</p>';
   else if(tab==='quiz') quiz(pane, c.quiz.map(q=>({...q})), score=>{ if(score>(prog.quiz[c.id]||0)){prog.quiz[c.id]=score;save()} });
   if(tab==='ex' && !c.ex.length) pane.innerHTML='<p class="muted">Chương này chưa có bài tập.</p>';
-  else if(tab==='ex') exercises(pane,c);
+  else if(tab==='ex'){ exercises(pane,c); if(dg){ const fb=[...pane.querySelectorAll('[data-dg]')].find(b=>b.dataset.dg===dg); if(fb) fb.click(); } }
   window.scrollTo(0,0);
 }
 
@@ -385,8 +400,8 @@ function exercises(pane,c){
   pane.innerHTML = `<p class="muted">★ là bài cơ bản, ★★ là bài vận dụng, ★★★ là bài nâng cao. Hãy tự giải ra giấy trước, chỉ mở gợi ý khi thật sự bí. Chọn một dạng để luyện riêng:</p>
    <div class="dang-list"><button aria-pressed="true" data-dg="">Tất cả (${c.ex.length})</button>${dangs.map(d=>`<button aria-pressed="false" data-dg="${esc(d)}">${d} (${c.ex.filter(e=>e.d===d).length})</button>`).join('')}</div>` +
    c.ex.map((e,k)=>{ const key=c.id+'-'+k, done=prog.ex[key];
-    return `<div class="ex ${done?'done':''}" data-k="${k}" data-d="${esc(e.d)}">
-     <h4><span class="lv" aria-label="${e.lv} sao">${'★'.repeat(e.lv)}</span>Bài ${k+1}. ${e.t} <span class="dang">${e.d}</span> ${done?'<span class="done-badge">Đã giải</span>':''}</h4>
+    return `<div class="ex ${done?'done':''} ${e.d===INTL?'intl':''}" data-k="${k}" data-d="${esc(e.d)}">
+     <h4><span class="lv" aria-label="${e.lv} sao">${'★'.repeat(e.lv)}</span>Bài ${k+1}. ${e.t} <span class="dang ${e.d===INTL?'intl':''}">${e.d}</span> ${done?'<span class="done-badge">Đã giải</span>':''}</h4>
      <div>${e.q}</div>
      ${(e.ans!==null&&e.ans!==undefined&&e.ans!=='')?`<div class="check"><input inputmode="decimal" placeholder="Đáp số" aria-label="Nhập đáp số"><span class="muted">${e.unit}</span><button class="btn ghost chk">Kiểm tra</button><span class="fb"></span></div>`:''}
      <div class="row" style="margin-top:8px"><button class="btn ghost hintb">Xem gợi ý</button><button class="btn ghost solb">Xem lời giải</button>${(e.ans===null||e.ans===undefined||e.ans==='')?'<button class="btn ghost markb">Đánh dấu đã giải</button>':''}</div>
@@ -430,6 +445,26 @@ function review(){
   document.getElementById('newset').onclick=review;
   document.getElementById('tof').onclick=formulas;
   quiz(document.getElementById('pane'), pick, ()=>{}, pick.map(p=>p.label));
+  window.scrollTo(0,0);
+}
+const INTL = 'Nguồn từ nước ngoài';
+function hasIntl(){ return CH.some(c=>c.ex.some(e=>e.d===INTL) || /class="sec intl"/.test(c.theory)); }
+function intlPage(){
+  if(stopAnim){stopAnim();stopAnim=null}
+  let html = `<button class="back" id="back">← Mục lục</button>
+   <div class="ch-head"><div class="no">${SUBJ.name} 8 · Mở rộng</div><h2>🌍 ${INTL}</h2></div>
+   <p class="muted">Những chủ đề và bài tập kinh điển được phỏng dịch từ các trang học tập tiếng Anh uy tín. Mỗi phần đều ghi nguồn, bấm vào để đọc bản gốc. Đây cũng là dịp học thêm từ vựng tiếng Anh!</p>`;
+  CH.forEach((c,i)=>{
+    const tmp=document.createElement('div'); tmp.innerHTML=c.theory;
+    const blocks=[...tmp.querySelectorAll('.sec.intl')].map(b=>b.outerHTML).join('');
+    const n=c.ex.filter(e=>e.d===INTL).length;
+    if(!blocks && !n) return;
+    html += `<h3 style="margin:22px 0 8px;font-size:17px">Chương ${i+1}. ${c.title}</h3>${blocks}` +
+      (n?`<div class="intl-go"><button class="btn" data-go-ch="${i}">Làm ${n} bài ${INTL.toLowerCase()} →</button></div>`:'');
+  });
+  app.innerHTML = html;
+  document.getElementById('back').onclick=home;
+  app.querySelectorAll('[data-go-ch]').forEach(b=>b.onclick=()=>chapter(+b.dataset.goCh,'ex',INTL));
   window.scrollTo(0,0);
 }
 const EXTRA_SHEET = {
@@ -698,7 +733,7 @@ async function loadRows(sub){
   let rows = null;
   if(cfg.SUPABASE_URL && cfg.SUPABASE_KEY && !cfg.SUPABASE_URL.includes('xxxx')){
     try{
-      const url = cfg.SUPABASE_URL.replace(/\/$/,'') + '/rest/v1/chapters?select=*&published=eq.true&subject=eq.' + encodeURIComponent(sub.key) + '&order=position.asc';
+      const url = cfg.SUPABASE_URL.trim().replace(/\/+$/,'').replace(/\/rest\/v1$/,'') + '/rest/v1/chapters?select=*&published=eq.true&subject=eq.' + encodeURIComponent(sub.key) + '&order=position.asc';
       const r = await fetch(url, { headers:{ apikey: cfg.SUPABASE_KEY } });
       if(!r.ok) throw new Error('HTTP '+r.status);
       rows = await r.json();

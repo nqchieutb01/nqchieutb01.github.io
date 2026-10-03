@@ -264,7 +264,7 @@ async function start(){
     return;
   }
   if(!window.supabase){ root.innerHTML = `<div class="center"><div class="panel"><h2>Không tải được thư viện</h2><p>Kiểm tra kết nối mạng rồi tải lại trang.</p></div></div>`; return; }
-  sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_KEY);
+  sb = window.supabase.createClient(cfg.SUPABASE_URL.trim().replace(/\/+$/,'').replace(/\/rest\/v1$/,''), cfg.SUPABASE_KEY);
   const { data } = await sb.auth.getSession();
   user = data.session?.user || null;
   user ? afterLogin() : loginView();
@@ -345,6 +345,7 @@ function renderSide(){
      <span class="mv"><button data-up="${i}" aria-label="Chuyển lên" ${i===0?'disabled':''}>▲</button><button data-down="${i}" aria-label="Chuyển xuống" ${i===chapters.length-1?'disabled':''}>▼</button></span></li>`).join('')}</ul>
    <div class="tools">
      <button class="btn ghost" id="addch">+ Thêm chương</button>
+     ${intlMissing()?`<button class="btn" id="intlup">🌍 Thêm “Nguồn từ nước ngoài” (${intlMissing()} mục mới)</button>`:''}
      <button class="btn ghost" id="exp">Tải file sao lưu (.json)</button>
      <label class="btn ghost" style="text-align:center">Khôi phục từ file sao lưu<input type="file" accept=".json,application/json" id="imp" hidden></label>
    </div>`;
@@ -353,6 +354,7 @@ function renderSide(){
   s.querySelectorAll('[data-down]').forEach(b=>b.onclick=()=>move(+b.dataset.down,1));
   document.getElementById('addch').onclick = addChapter;
   document.getElementById('exp').onclick = exportJson;
+  const iu=document.getElementById('intlup'); if(iu) iu.onclick = addIntl;
   document.getElementById('imp').onchange = importJson;
 }
 
@@ -566,6 +568,36 @@ async function seed(){
   const { error } = await sb.from('chapters').upsert(rows);
   if(error){ b.disabled=false; b.textContent='Nạp dữ liệu mẫu '+subj().name; toast('Nạp thất bại: '+error.message, true); return; }
   toast('Đã nạp '+rows.length+' chương'); cur=0; await loadAll();
+}
+/* ---------- Bổ sung phần "Nguồn từ nước ngoài" từ dữ liệu mẫu vào database ---------- */
+const INTL = 'Nguồn từ nước ngoài';
+function intlPlan(){
+  const plan=[];
+  (subj().data()||[]).forEach(d=>{
+    const c = chapters.find(x=>x.id===d.id); if(!c) return;
+    const k = (d.theory||'').indexOf('<div class="sec intl">');
+    const block = k>=0 && !c.theory.includes('class="sec intl"') ? d.theory.slice(k) : '';
+    const have = new Set(c.ex.map(e=>e.t.trim()));
+    const ex = (d.ex||[]).filter(e=>e.d===INTL && !have.has(e.t.trim()));
+    if(block||ex.length) plan.push({id:d.id, block, ex});
+  });
+  return plan;
+}
+function intlMissing(){ return intlPlan().reduce((a,p)=>a+(p.block?1:0)+p.ex.length,0); }
+async function addIntl(){
+  if(chapters.some(c=>c._dirty)){ toast('Hãy lưu các chương đang sửa trước đã', true); return; }
+  const plan=intlPlan(); if(!plan.length) return;
+  if(!confirm(`Thêm phần lý thuyết và bài tập “${INTL}” vào ${plan.length} chương của môn ${subj().name}? Nội dung cũ được giữ nguyên.`)) return;
+  const b=document.getElementById('intlup'); b.disabled=true; b.textContent='Đang thêm…';
+  for(const p of plan){
+    const { data, error } = await sb.from('chapters').select('theory,ex').eq('id',p.id).single();
+    if(error){ toast(error.message,true); b.disabled=false; return; }
+    const theory = p.block ? (data.theory||'').trimEnd()+'\n'+p.block : data.theory;
+    const ex = (data.ex||[]).concat(p.ex);
+    const r = await sb.from('chapters').update({theory, ex}).eq('id',p.id);
+    if(r.error){ toast(r.error.message,true); b.disabled=false; return; }
+  }
+  toast('Đã thêm vào '+plan.length+' chương'); await loadAll();
 }
 function exportJson(){
   const rows = chapters.map((c,i)=>toRow(c,i));
