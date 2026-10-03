@@ -235,7 +235,9 @@ body[data-subj="dia-8"]{--accent:#2C7FB8;--accent-soft:rgba(44,127,184,.11);--ac
 <nav class="subj" id="subj" aria-label="Chọn môn học"></nav>
 <main class="wrap" id="app"></main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
+<script src="account.js"></script>
 <script src="default-data.js"></script>
 <script src="data-hoa.js"></script>
 <script src="data-sinh.js"></script>
@@ -283,8 +285,8 @@ const app = document.getElementById('app');
 const fmt = (x,d=2)=> Number(x).toLocaleString('vi-VN',{maximumFractionDigits:d});
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let prog = {quiz:{}, ex:{}};
-function loadProg(){ prog = {quiz:{}, ex:{}}; try{ const s = JSON.parse(localStorage.getItem(SUBJ.store+'-prog')); if(s && s.quiz && s.ex) prog = s; }catch(e){} }
-function save(){ try{ localStorage.setItem(SUBJ.store+'-prog', JSON.stringify(prog)); }catch(e){} }
+function loadProg(){ prog = {quiz:{}, ex:{}}; try{ const s = JSON.parse(localStorage.getItem(SUBJ.store+'-prog')); if(s && s.quiz && s.ex) prog = s; }catch(e){} if(window.ACC) ACC.afterLoad(); }
+function save(){ try{ localStorage.setItem(SUBJ.store+'-prog', JSON.stringify(prog)); }catch(e){} if(window.ACC) ACC.push(prog); }
 function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]} return a }
 let stopAnim = null;
 
@@ -325,6 +327,7 @@ function home(){
   app.querySelector('[data-go=review]').onclick=review;
   app.querySelector('[data-go=formulas]').onclick=formulas;
   document.getElementById('reset').onclick=()=>{ if(confirm('Xóa toàn bộ tiến độ học môn '+SUBJ.name+'?')){prog={quiz:{},ex:{}};save();home();} };
+  if(window.ACC) ACC.renderBar();
   window.scrollTo(0,0);
 }
 
@@ -729,7 +732,8 @@ async function openSubject(key){
   useData(rows);
   home();
 }
-function boot(){
+async function boot(){
+  if(window.ACC) await ACC.init();
   const h = location.hash.slice(1);
   let key = (SUBJECTS.find(x=>x.hash===h)||{}).key;
   if(!key){ try{ key = localStorage.getItem('st8-subject'); }catch(e){} }
