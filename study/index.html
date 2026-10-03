@@ -167,7 +167,44 @@ details.wq[open] summary{margin-bottom:6px}
 .dang-list button{font-size:13px;padding:4px 10px;border-radius:999px;border:1.5px solid var(--line);background:var(--card)}
 .dang-list button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .ex svg{max-width:340px;width:100%;height:auto;display:block;margin:8px 0;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+/* ===== Giao diện hồng tím ===== */
+:root{
+  --paper:#FFF5FA; --grid:rgba(214,92,170,.16); --ink:#3B1F4A; --muted:#7D6290;
+  --line:#EFD3E6; --card:#FFFFFF; --hl:#FFB8DC; --hl-soft:rgba(255,168,214,.5);
+  --accent:#9B4DCA; --accent-soft:rgba(155,77,202,.10); --ok:#2E9E6E; --ok-soft:rgba(46,158,110,.12);
+  --bad:#D6456F; --bad-soft:rgba(214,69,111,.11); --liquid:#C9A8F0; --liquid2:#9B6BDE;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#1E1426; --grid:rgba(240,160,215,.10); --ink:#F6E9F7; --muted:#C3A9CF;
+    --line:#46304F; --card:#2A1C35; --hl:#E77DB8; --hl-soft:rgba(231,125,184,.30);
+    --accent:#D7A6FF; --accent-soft:rgba(215,166,255,.14); --ok:#6FD8A4; --ok-soft:rgba(111,216,164,.14);
+    --bad:#FF8FAE; --bad-soft:rgba(255,143,174,.14); --liquid:#5A3E8C; --liquid2:#A47BE8;
+  }
+}
+body{
+  font-family:"Nunito","Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  background-image:radial-gradient(var(--grid) 1.3px,transparent 1.6px);
+  background-size:20px 20px;
+}
+.hero h1{font-weight:900;color:var(--accent)}
+.hero h1 .scrib{color:var(--ink);border-radius:6px}
+.hero h1::after{content:" ✿";font-size:.5em;color:var(--hl);vertical-align:.6em}
+.index{border-top:2px dashed var(--accent)}
+.idx-no{color:#D65CAA}
+.bar{height:7px;border-radius:999px}
+.bar>i{background:linear-gradient(90deg,#F48FC6,#A66BE0);border-radius:999px}
+.extra button{border:2px solid var(--line);border-radius:18px}
+.extra button:hover{border-color:var(--accent)}
+.sec{border-radius:20px;border-color:var(--line)}
+.tabs{border-bottom:2px dashed var(--accent)}
+.tab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.dang-list button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.note{border-left-color:#E77DB8}
+.eg{border-color:var(--accent);border-radius:16px}
+.idx-title,.idx-meta,.bar{display:block}
 </style>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
 <main class="wrap" id="app"></main>
