@@ -8,7 +8,7 @@
    KHÔNG BAO GIỜ dán "secret key" hay "service_role key" vào đây.
    ================================================================ */
 window.APP_CONFIG = {
-  SUPABASE_URL: 'https://xxxx.supabase.co',
-  SUPABASE_KEY: 'DAN_PUBLISHABLE_KEY_VAO_DAY',
+  SUPABASE_URL: 'https://sphhyodmfjjekssvyypx.supabase.co/rest/v1/',
+  SUPABASE_KEY: 'sb_publishable_oFGgeVgTSXJp_etO2XWTMg_NEaggPXM',
   SUBJECT: 'vat-ly-8'
 };
