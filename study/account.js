@@ -49,6 +49,12 @@
     const r = {quiz:{...(a.quiz||{})}, ex:{...(a.ex||{})}};
     for(const k in (b.quiz||{})) r.quiz[k] = Math.max(r.quiz[k]||0, b.quiz[k]||0);
     for(const k in (b.ex||{})) if(b.ex[k]) r.ex[k] = true;
+    // Sổ lỗi sai: mỗi câu giữ bản được sửa gần nhất (theo thời điểm u)
+    const ma = a.mis||{}, mb = b.mis||{};
+    if(Object.keys(ma).length || Object.keys(mb).length){
+      r.mis = {...ma};
+      for(const k in mb) if(!r.mis[k] || (mb[k].u||0) > (r.mis[k].u||0)) r.mis[k] = mb[k];
+    }
     return r;
   }
   function setState(s){ state = s; const el = document.getElementById('acct-st'); if(el) el.textContent = s; }

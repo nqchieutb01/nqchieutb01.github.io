@@ -227,6 +227,27 @@ body[data-subj="dia-8"]{--accent:#2C7FB8;--accent-soft:rgba(44,127,184,.11);--ac
   :root:not([data-theme="light"]) .subj button[aria-pressed="true"]{color:#1E1426}
 }
 .idx-no{color:var(--accent)}
+/* ===== Sổ lỗi sai ===== */
+.mis-cta{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin:4px 0 18px;padding:12px 14px;border:2px solid var(--accent);border-radius:18px;background:var(--accent-soft);color:var(--ink)}
+.mis-cta b{display:block;font-size:16px}
+.mis-cta span{font-size:13.5px;color:var(--muted)}
+.mis-cta .go{margin-left:auto;font-weight:800;color:var(--accent);white-space:nowrap}
+.mis-ico{font-size:26px;line-height:1}
+.mis-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 16px}
+.mis-stats div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 8px;text-align:center}
+.mis-stats b{display:block;font-size:26px;line-height:1.1;color:var(--accent)}
+.mis-stats span{font-size:12.5px;color:var(--muted)}
+.mis-rule{font-size:14px;color:var(--muted);margin:4px 0 0}
+.mis-list{list-style:none;padding:0;margin:8px 0 0}
+.mis-list li{display:flex;gap:10px;align-items:flex-start;padding:10px 2px;border-bottom:1px dashed var(--line)}
+.mis-list .q{flex:1;min-width:0;font-size:14.5px;border:0;padding:0;margin:0;background:none}
+.mis-list .q small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.mis-list .when{font-size:12.5px;color:var(--muted);white-space:nowrap;text-align:right}
+.dots{letter-spacing:2px;color:var(--accent);font-size:11px}
+.mis-prog{font-size:13.5px;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between}
+.mis-note{font-size:13px;color:var(--muted);margin-top:6px}
+.mis-done{text-align:center;padding:22px 16px}
+.mis-done .big{font-size:22px;font-weight:800;margin:6px 0}
 /* ===== Nguồn từ nước ngoài ===== */
 .sec.intl{border:2px dashed var(--accent);background:linear-gradient(var(--accent-soft),transparent 140px),var(--card)}
 .sec.intl>h3::before{content:"🌍 "}
@@ -303,6 +324,58 @@ function save(){ try{ localStorage.setItem(SUBJ.store+'-prog', JSON.stringify(pr
 function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]} return a }
 let stopAnim = null;
 
+/* =================== SỔ LỖI SAI ===================
+   Câu sai ở Ôn tập / Ôn tập tổng hợp / Bài tập (bài có đáp số) được ghi vào prog.mis.
+   Lịch ôn: sai → ôn lại sau 1 ngày; đúng → sau 3 ngày; đúng tiếp → sau 7 ngày; đúng lần nữa → rời sổ.
+   Ôn sai bất kỳ lúc nào → quay lại từ đầu. Mỗi mục: {t:'q'|'e', c, s(bậc 0..2), due(ngày), n(số lần sai), u(thời điểm sửa), x(đã thuộc)} */
+const MIS_GAP = [1,3,7];
+const today = () => Math.floor((Date.now() - new Date().getTimezoneOffset()*60000)/86400000);
+const dayStr = d => { const t=new Date(d*86400000); return String(t.getUTCDate()).padStart(2,'0')+'/'+String(t.getUTCMonth()+1).padStart(2,'0'); };
+function hashStr(str){ let h=5381; for(let i=0;i<str.length;i++) h=((h<<5)+h+str.charCodeAt(i))|0; return (h>>>0).toString(36); }
+const misKeyQ = (cid,q) => cid+':q:'+hashStr(q.q);
+const misKeyE = (cid,e) => cid+':e:'+hashStr(e.t+'|'+e.q);
+const hasAns = e => e.ans!==null && e.ans!==undefined && e.ans!=='';
+function misBook(){ if(!prog.mis) prog.mis={}; return prog.mis; }
+function misWrong(key,t,cid){
+  const b=misBook(), m=b[key]||{t,c:cid,n:0};
+  m.t=t; m.c=cid; m.s=0; m.due=today()+MIS_GAP[0]; m.n=(m.n||0)+1; m.u=Date.now(); delete m.x;
+  b[key]=m; save();
+}
+function misReviewed(key,ok){
+  const m=misBook()[key]; if(!m) return 'gone';
+  m.u=Date.now();
+  if(!ok){ m.s=0; m.due=today()+MIS_GAP[0]; m.n=(m.n||0)+1; save(); return 'reset'; }
+  m.s=(m.s||0)+1;
+  if(m.s>=MIS_GAP.length){ m.x=1; delete m.due; save(); return 'cleared'; }
+  m.due=today()+MIS_GAP[m.s]; save(); return 'next';
+}
+/* Tra nội dung câu hỏi theo khoá; câu đã bị sửa/xoá khỏi bài thì bỏ qua */
+function misIndex(){
+  const idx={};
+  CH.forEach((c,i)=>{
+    c.quiz.forEach(q=>{ idx[misKeyQ(c.id,q)]={kind:'q',c,i,item:q}; });
+    c.ex.forEach(e=>{ if(hasAns(e)) idx[misKeyE(c.id,e)]={kind:'e',c,i,item:e}; });
+  });
+  return idx;
+}
+function misSummary(){
+  const idx=misIndex(), b=misBook(), d=today(), due=[], wait=[]; let done=0;
+  for(const k in b){ const m=b[k]; if(!idx[k]) continue;
+    if(m.x){ done++; continue; }
+    (m.due<=d?due:wait).push({k,m,...idx[k]});
+  }
+  due.sort((a,b)=>a.m.due-b.m.due||b.m.n-a.m.n); wait.sort((a,b)=>a.m.due-b.m.due);
+  return {due,wait,done};
+}
+/* Đọc số học sinh nhập: chấp nhận dấu phẩy thập phân, dấu chấm hàng nghìn, khoảng trắng */
+function readNum(raw,e){
+  raw=String(raw).trim().replace(/\s/g,'');
+  let v = raw.includes(',') ? parseFloat(raw.replace(/\./g,'').replace(',','.')) : parseFloat(raw);
+  if(raw.includes('.') && !raw.includes(',') && /^\d{1,3}(\.\d{3})+$/.test(raw) && Math.abs(parseFloat(raw)-Number(e.ans))>Number(e.tol||0)) v = parseFloat(raw.replace(/\./g,''));
+  return v;
+}
+const numOk = (v,e) => Math.abs(v-Number(e.ans))<=Number(e.tol||0);
+
 /* =================== TRANG CHỦ =================== */
 function home(){
   if(stopAnim){stopAnim();stopAnim=null}
@@ -317,16 +390,19 @@ function home(){
       <span class="bar"><i style="width:${pct}%"></i></span></span>
       <span class="idx-icon" aria-hidden="true">${c.icon}</span></button>`;
   }).join('');
+  const ms = misSummary();
   app.innerHTML = `
   <header class="hero">
     <h1>Sổ tay <span class="scrib">${SUBJ.name} 8</span></h1>
     <p>${SUBJ.intro}</p>
     <div class="formula-strip" aria-hidden="true">${SUBJ.strip}</div>
   </header>
+  ${ms.due.length?`<button class="mis-cta" data-go="mis"><span class="mis-ico" aria-hidden="true">📒</span><span><b>${ms.due.length} câu cần ôn lại hôm nay</b><span>Từ sổ lỗi sai của em</span></span><span class="go">Ôn ngay →</span></button>`:''}
   <nav class="index" aria-label="Các chương">${rows}</nav>
   <div class="extra">
     <button data-go="review"><b>Ôn tập tổng hợp</b><span>10 câu ngẫu nhiên từ mọi chương</span></button>
     <button data-go="formulas"><b>${SUBJ.sheet}</b><span>${SUBJ.sheetSub}</span></button>
+    <button data-go="mis" class="wide"><b>📒 Sổ lỗi sai</b><span>${ms.due.length?ms.due.length+' câu cần ôn hôm nay · ':''}${ms.wait.length?ms.wait.length+' câu đang chờ · ':''}${ms.done?ms.done+' câu đã thuộc':(!ms.due.length&&!ms.wait.length?'Câu nào làm sai sẽ tự được ghi vào đây':'')}</span></button>
     ${hasIntl()?`<button data-go="intl" class="wide"><b>🌍 ${INTL}</b><span>Lý thuyết và bài tập kinh điển từ các trang tiếng Anh uy tín (OpenStax, AoPS…), có ghi nguồn</span></button>`:''}
   </div>
   <div class="howto"><b>Cách học mỗi chương:</b>
@@ -339,6 +415,7 @@ function home(){
   <footer>Kiến thức theo chương trình ${SUBJ.key==='toan-8'?'Toán 8':SUBJ.noEx?'Lịch sử và Địa lí 8':'Khoa học tự nhiên 8'} (Kết nối tri thức)${SUBJ.noEx?'':', kèm một số phần mở rộng thường gặp trong đề thi học sinh giỏi'}. Tiến độ của từng môn được lưu trên trình duyệt của máy này.</footer>`;
   app.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>chapter(+b.dataset.ch,'theory'));
   app.querySelector('[data-go=review]').onclick=review;
+  app.querySelectorAll('[data-go=mis]').forEach(b=>b.onclick=misPage);
   app.querySelector('[data-go=formulas]').onclick=formulas;
   const gi=app.querySelector('[data-go=intl]'); if(gi) gi.onclick=intlPage;
   document.getElementById('reset').onclick=()=>{ if(confirm('Xóa toàn bộ tiến độ học môn '+SUBJ.name+'?')){prog={quiz:{},ex:{}};save();home();} };
@@ -366,7 +443,7 @@ function chapter(i,tab,dg){
   if(tab==='theory') pane.innerHTML = (c.theory||'<p class="muted">Chương này chưa có nội dung lý thuyết.</p>') + `<div class="next"><button class="btn" id="tolab">${hasLab(c)?'Sang phần '+SUBJ.lab.toLowerCase():'Sang phần ôn tập'}</button></div>`, document.getElementById('tolab').onclick=()=>chapter(i,hasLab(c)?'lab':'quiz');
   if(tab==='lab') LABS[c.lab](pane);
   if(tab==='quiz' && !c.quiz.length) pane.innerHTML='<p class="muted">Chương này chưa có câu hỏi ôn tập.</p>';
-  else if(tab==='quiz') quiz(pane, c.quiz.map(q=>({...q})), score=>{ if(score>(prog.quiz[c.id]||0)){prog.quiz[c.id]=score;save()} });
+  else if(tab==='quiz') quiz(pane, c.quiz.map(q=>({...q,cid:c.id})), score=>{ if(score>(prog.quiz[c.id]||0)){prog.quiz[c.id]=score;save()} });
   if(tab==='ex' && !c.ex.length) pane.innerHTML='<p class="muted">Chương này chưa có bài tập.</p>';
   else if(tab==='ex'){ exercises(pane,c); if(dg){ const fb=[...pane.querySelectorAll('[data-dg]')].find(b=>b.dataset.dg===dg); if(fb) fb.click(); } }
   window.scrollTo(0,0);
@@ -387,7 +464,8 @@ function quiz(pane, items, onDone, labels){
       const k=+b.dataset.k, ok = it.opts[k].ok;
       box.querySelectorAll('.opt').forEach((x,j)=>{ x.disabled=true; if(it.opts[j].ok) x.classList.add('right'); });
       if(!ok) b.classList.add('wrong');
-      const w = box.querySelector('.why'); w.hidden=false; w.innerHTML = (ok?'<b style="color:var(--ok)">Chính xác!</b> ':'<b style="color:var(--bad)">Chưa đúng.</b> ')+it.why;
+      if(!ok && it.cid) misWrong(misKeyQ(it.cid,it),'q',it.cid);
+      const w = box.querySelector('.why'); w.hidden=false; w.innerHTML = (ok?'<b style="color:var(--ok)">Chính xác!</b> ':'<b style="color:var(--bad)">Chưa đúng.</b> ')+it.why+(!ok&&it.cid?'<div class="mis-note">📒 Đã ghi vào sổ lỗi sai, em sẽ gặp lại câu này sau 1 ngày.</div>':'');
       answered++; if(ok) right++;
       document.getElementById('sc').textContent = `Đúng ${right}/${prepared.length}` + (answered===prepared.length? (right===prepared.length?', xuất sắc!':', xem lại câu sai nhé'):'');
       if(answered===prepared.length) onDone(right);
@@ -422,22 +500,96 @@ function exercises(pane,c){
     const mb=box.querySelector('.markb'); if(mb) mb.onclick=mark;
     const chk=box.querySelector('.chk');
     if(chk){ const inp=box.querySelector('input'), fb=box.querySelector('.fb');
-      const run=()=>{ const raw=inp.value.trim().replace(/\s/g,'');
-        // chấp nhận "6.180" kiểu nghìn hoặc dấu phẩy thập phân
-        let v = raw.includes(',') ? parseFloat(raw.replace(/\./g,'').replace(',','.')) : parseFloat(raw);
-        if(raw.includes('.') && !raw.includes(',') && /^\d{1,3}(\.\d{3})+$/.test(raw) && Math.abs(parseFloat(raw)-Number(e.ans))>Number(e.tol||0)) v = parseFloat(raw.replace(/\./g,''));
+      const run=()=>{ const v=readNum(inp.value,e);
         if(isNaN(v)){ fb.className='fb no'; fb.textContent='Hãy nhập một con số.'; return; }
-        if(Math.abs(v-Number(e.ans))<=Number(e.tol||0)){ fb.className='fb ok'; fb.textContent='Đúng rồi! 🎉'; mark(); }
-        else { fb.className='fb no'; fb.textContent='Chưa đúng, thử kiểm tra lại đơn vị.'; } };
+        if(numOk(v,e)){ fb.className='fb ok'; fb.textContent='Đúng rồi! 🎉'; mark(); }
+        else { misWrong(misKeyE(c.id,e),'e',c.id); fb.className='fb no'; fb.textContent='Chưa đúng, thử kiểm tra lại đơn vị. Bài này đã được ghi vào sổ lỗi sai.'; } };
       chk.onclick=run; inp.onkeydown=ev=>{ if(ev.key==='Enter') run() };
     }
   });
 }
 
 /* =================== ÔN TẬP TỔNG HỢP & CÔNG THỨC =================== */
+/* ---------- Trang Sổ lỗi sai ---------- */
+function misPage(){
+  if(stopAnim){stopAnim();stopAnim=null}
+  const {due,wait,done}=misSummary();
+  const row = x => `<li><div class="q">${x.kind==='q'?x.item.q:'<b>'+x.item.t+'</b>'}<small>Chương ${x.i+1} · ${x.kind==='q'?'Ôn tập':'Bài tập'} · sai ${x.m.n} lần</small></div>
+    <div class="when">${x.m.due<=today()?'<b style="color:var(--accent)">Hôm nay</b>':dayStr(x.m.due)}<br><span class="dots" aria-label="Đã ôn đúng ${x.m.s||0} trên 3 lần">${'●'.repeat(x.m.s||0)}${'○'.repeat(MIS_GAP.length-(x.m.s||0))}</span></div></li>`;
+  app.innerHTML = `<button class="back" id="back">← Mục lục</button>
+   <div class="ch-head"><div class="no">${SUBJ.name} 8</div><h2>📒 Sổ lỗi sai</h2>
+   <p class="mis-rule">Câu nào em làm sai sẽ quay lại sau 1 ngày, rồi 3 ngày, rồi 7 ngày. Trả lời đúng cả 3 lần thì câu đó rời sổ.</p></div>
+   <div class="mis-stats"><div><b>${due.length}</b><span>Cần ôn</span></div><div><b>${wait.length}</b><span>Đang chờ</span></div><div><b>${done}</b><span>Đã thuộc</span></div></div>
+   ${due.length?`<button class="btn" id="mis-go" style="width:100%;padding:12px">Bắt đầu ôn ${due.length} câu</button>`:
+     (wait.length?`<div class="sec" style="text-align:center">Hôm nay chưa có câu nào cần ôn. Câu tiếp theo quay lại vào ngày <b>${dayStr(wait[0].m.due)}</b>. ✿</div>`:
+     `<div class="sec" style="text-align:center"><p style="font-size:30px;margin:4px 0">📒</p>Sổ đang trống. Câu nào em làm sai ở phần <b>Ôn tập</b> hoặc bài tập có đáp số sẽ tự được ghi vào đây.</div>`)}
+   ${due.length?`<h3 style="margin:22px 0 4px;font-size:16px">Cần ôn hôm nay</h3><ul class="mis-list">${due.map(row).join('')}</ul>`:''}
+   ${wait.length?`<h3 style="margin:22px 0 4px;font-size:16px">Đang chờ đến lượt</h3><ul class="mis-list">${wait.map(row).join('')}</ul>`:''}`;
+  document.getElementById('back').onclick=home;
+  const g=document.getElementById('mis-go'); if(g) g.onclick=()=>misSession(due.map(x=>x.k));
+  window.scrollTo(0,0);
+}
+function misSession(keys){
+  if(stopAnim){stopAnim();stopAnim=null}
+  let pos=0, right=0, cleared=0;
+  const idx=misIndex();
+  keys=keys.filter(k=>idx[k]);
+  app.innerHTML = `<button class="back" id="back">← Sổ lỗi sai</button>
+   <div class="ch-head"><div class="no">${SUBJ.name} 8 · Sổ lỗi sai</div><h2>Ôn lại câu đã sai</h2></div><section id="pane"></section>`;
+  document.getElementById('back').onclick=misPage;
+  const pane=document.getElementById('pane');
+  function finish(){
+    pane.innerHTML = `<div class="sec mis-done"><p style="font-size:34px;margin:0">${right===keys.length?'🌟':'💪'}</p>
+      <div class="big">Đúng ${right}/${keys.length} câu</div>
+      <p class="muted">${cleared?`${cleared} câu đã rời sổ vì em trả lời đúng đủ 3 lần. `:''}${right<keys.length?'Câu sai sẽ quay lại vào ngày mai, đừng lo nhé.':'Giỏi lắm! Các câu đúng sẽ quay lại sau vài ngày để em nhớ thật lâu.'}</p>
+      <div class="row" style="justify-content:center;margin-top:12px"><button class="btn" id="mis-back">Về sổ lỗi sai</button><button class="btn ghost" id="mis-home">Về mục lục</button></div></div>`;
+    document.getElementById('mis-back').onclick=misPage; document.getElementById('mis-home').onclick=home;
+  }
+  function after(box,ok,result,explain){
+    if(ok) right++; if(result==='cleared') cleared++;
+    const m=misBook()[keys[pos]];
+    const msg = !ok ? 'Câu này sẽ quay lại vào ngày mai.' : result==='cleared' ? '🎉 Đúng đủ 3 lần, câu này rời sổ!' : `Câu này sẽ quay lại vào ngày ${dayStr(m.due)}.`;
+    box.insertAdjacentHTML('beforeend', `<div class="why">${ok?'<b style="color:var(--ok)">Chính xác!</b> ':'<b style="color:var(--bad)">Chưa đúng.</b> '}${explain}<div class="mis-note">📒 ${msg}</div></div>
+      <div class="next"><button class="btn" id="mis-next">${pos<keys.length-1?'Câu tiếp theo →':'Xem kết quả'}</button></div>`);
+    const nb=document.getElementById('mis-next'); nb.focus({preventScroll:true});
+    nb.onclick=()=>{ pos++; pos<keys.length?show():finish(); window.scrollTo(0,pane.offsetTop-60); };
+  }
+  function show(){
+    const k=keys[pos], x=idx[k], it=x.item;
+    const head = `<div class="mis-prog"><span>Câu ${pos+1}/${keys.length}</span><span>Chương ${x.i+1} · ${x.kind==='q'?'Ôn tập':'Bài tập'}</span></div>`;
+    if(x.kind==='q'){
+      const opts=shuffle(it.o.map((t,j)=>({t,ok:j===0})));
+      pane.innerHTML = head+`<div class="q"><div class="qt">${it.q}</div>${opts.map((o,j)=>`<button class="opt" data-j="${j}">${String.fromCharCode(65+j)}. ${o.t}</button>`).join('')}</div>`;
+      const box=pane.querySelector('.q');
+      box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+        const ok=opts[+b.dataset.j].ok;
+        box.querySelectorAll('.opt').forEach((y,j)=>{ y.disabled=true; if(opts[j].ok) y.classList.add('right'); });
+        if(!ok) b.classList.add('wrong');
+        after(box, ok, misReviewed(k,ok), it.why);
+      });
+    } else {
+      pane.innerHTML = head+`<div class="ex"><h4><span class="lv" aria-label="${it.lv} sao">${'★'.repeat(it.lv)}</span>${it.t}</h4><div>${it.q}</div>
+        <div class="check"><input inputmode="decimal" placeholder="Đáp số" aria-label="Nhập đáp số"><span class="muted">${it.unit||''}</span><button class="btn ghost chk">Kiểm tra</button><span class="fb"></span></div>
+        <div class="row" style="margin-top:8px"><button class="btn ghost hintb">Xem gợi ý</button></div>
+        <div class="reveal hint" hidden><b>Gợi ý:</b> ${it.hint}</div></div>`;
+      const box=pane.querySelector('.ex'), inp=box.querySelector('input'), fb=box.querySelector('.fb'), chk=box.querySelector('.chk');
+      box.querySelector('.hintb').onclick=()=>{ const h=box.querySelector('.hint'); h.hidden=!h.hidden };
+      const run=()=>{ const v=readNum(inp.value,it);
+        if(isNaN(v)){ fb.className='fb no'; fb.textContent='Hãy nhập một con số.'; return; }
+        const ok=numOk(v,it); inp.disabled=true; chk.disabled=true; box.querySelector('.hintb').hidden=true; box.querySelector('.hint').hidden=true;
+        fb.className='fb '+(ok?'ok':'no'); fb.textContent=ok?'Đúng rồi!':'Đáp số đúng: '+fmt(it.ans,4)+' '+(it.unit||'');
+        after(box, ok, misReviewed(k,ok), '<b>Lời giải:</b><br>'+it.sol); };
+      chk.onclick=run; inp.onkeydown=ev=>{ if(ev.key==='Enter') run() };
+      setTimeout(()=>inp.focus({preventScroll:true}),30);
+    }
+  }
+  keys.length ? show() : misPage();
+  window.scrollTo(0,0);
+}
+
 function review(){
   if(stopAnim){stopAnim();stopAnim=null}
-  const pool=[]; CH.forEach((c,i)=>c.quiz.forEach(q=>pool.push({...q,label:'Chương '+(i+1)})));
+  const pool=[]; CH.forEach((c,i)=>c.quiz.forEach(q=>pool.push({...q,cid:c.id,label:'Chương '+(i+1)})));
   const pick = shuffle(pool).slice(0,10);
   app.innerHTML = `<button class="back" id="back">← Mục lục</button>
    <div class="ch-head"><div class="no">${SUBJ.name} 8 · Tổng hợp</div><h2>Ôn tập tổng hợp</h2></div>
