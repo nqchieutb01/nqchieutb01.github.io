@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Sổ tay Vật lý 8</title>
+<title>Sổ tay lớp 8</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Lora:ital,wght@1,500;1,600&display=swap" rel="stylesheet">
@@ -203,23 +203,71 @@ body{
 .note{border-left-color:#E77DB8}
 .eg{border-color:var(--accent);border-radius:16px}
 .idx-title,.idx-meta,.bar{display:block}
+/* ===== Thanh chọn môn ===== */
+.subj{max-width:760px;margin:0 auto;padding:12px 16px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.subj button{display:flex;flex-direction:column;align-items:center;gap:2px;border:2px solid var(--line);background:var(--card);border-radius:18px;padding:8px 4px 7px;font-weight:800;font-size:14px;color:var(--muted);transition:transform .15s,border-color .15s}
+.subj button .e{font-size:22px;line-height:1.1}
+.subj button:hover{border-color:var(--accent);transform:translateY(-1px)}
+.subj button[aria-pressed="true"]{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;color:#fff;box-shadow:0 4px 14px var(--accent-soft)}
+@media(min-width:560px){.subj button{flex-direction:row;justify-content:center;gap:8px;font-size:15.5px;padding:10px 6px}}
+@media (prefers-reduced-motion:reduce){.subj button{transition:none}}
+:root{--accent2:#E86FB4}
+body[data-subj="hoa-8"]{--accent:#C9447F;--accent-soft:rgba(201,68,127,.11);--accent2:#F29A6B}
+body[data-subj="sinh-8"]{--accent:#1F8C7A;--accent-soft:rgba(31,140,122,.11);--accent2:#7CCB8E}
+body[data-subj="toan-8"]{--accent:#5A5FD3;--accent-soft:rgba(90,95,211,.11);--accent2:#B07BE8}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]) body[data-subj="hoa-8"]{--accent:#FF94C2;--accent-soft:rgba(255,148,194,.14)}
+  :root:not([data-theme="light"]) body[data-subj="sinh-8"]{--accent:#72D9C3;--accent-soft:rgba(114,217,195,.14)}
+  :root:not([data-theme="light"]) body[data-subj="toan-8"]{--accent:#A9AEFF;--accent-soft:rgba(169,174,255,.14)}
+  :root:not([data-theme="light"]) .subj button[aria-pressed="true"]{color:#1E1426}
+}
+.idx-no{color:var(--accent)}
+@media(max-width:420px){.tab{padding:6px 11px;font-size:13.5px}.tab .n{display:none}}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
+<nav class="subj" id="subj" aria-label="Chọn môn học"></nav>
 <main class="wrap" id="app"></main>
 
 <script src="config.js"></script>
 <script src="default-data.js"></script>
+<script src="data-hoa.js"></script>
+<script src="data-sinh.js"></script>
+<script src="data-toan.js"></script>
+<script src="labs-hoa.js"></script>
+<script src="labs-sinh.js"></script>
+<script src="labs-toan.js"></script>
 <script>
 let CH = [];
+/* =================== CÁC MÔN HỌC =================== */
+const SUBJECTS = [
+ { key:'vat-ly-8', hash:'vat-ly', name:'Vật lý', emoji:'⚡', lab:'Thí nghiệm ảo', sheet:'Bảng công thức', sheetSub:'Tất cả công thức trên một trang',
+   intro:'Ôn lại kiến thức cơ bản, tự tay làm thí nghiệm ảo, rồi thử sức với bài tập nâng cao có gợi ý và lời giải.',
+   strip:'v = s/t &nbsp; p = d·h &nbsp; F<sub>A</sub> = d·V &nbsp; F₁d₁ = F₂d₂ &nbsp; I = I₁ + I₂ &nbsp; Q = mcΔt',
+   data:()=>window.DEFAULT_CH, store:'vl8' },
+ { key:'hoa-8', hash:'hoa', name:'Hoá học', emoji:'🧪', lab:'Thí nghiệm ảo', sheet:'Bảng công thức', sheetSub:'Công thức và điều cần nhớ',
+   intro:'Hoá học có mặt trong căn bếp, tủ thuốc và cả lọ kem dưỡng của em. Đọc lý thuyết, làm thí nghiệm ảo an toàn, rồi luyện bài tập có gợi ý.',
+   strip:'n = m/M &nbsp; V = 24,79·n &nbsp; d = M<sub>A</sub>/M<sub>B</sub> &nbsp; C% = m<sub>ct</sub>/m<sub>dd</sub>·100% &nbsp; C<sub>M</sub> = n/V &nbsp; pH &lt; 7 acid',
+   data:()=>(window.DEFAULT_DATA||{})['hoa-8'], store:'hoa8' },
+ { key:'sinh-8', hash:'sinh', name:'Sinh học', emoji:'🌿', lab:'Thí nghiệm ảo', sheet:'Ghi nhớ nhanh', sheetSub:'Số liệu và ý chính cần thuộc',
+   intro:'Hiểu cơ thể mình để sống khoẻ: ăn uống, hít thở, ngủ nghỉ, tuổi dậy thì và thế giới sinh vật quanh em. Mỗi chương có trò chơi tương tác và bài tập.',
+   strip:'chu kì tim 0,8 s &nbsp; 75 nhịp/phút &nbsp; khí lưu thông 500 mL &nbsp; BMI = m/h² &nbsp; năng lượng truyền ≈ 10%',
+   data:()=>(window.DEFAULT_DATA||{})['sinh-8'], store:'sinh8' },
+ { key:'toan-8', hash:'toan', name:'Toán', emoji:'📐', lab:'Khám phá', sheet:'Bảng công thức', sheetSub:'Hằng đẳng thức, định lí, công thức',
+   intro:'Toán không chỉ là con số: tính tiền giảm giá, đo chiều cao cây bằng bóng nắng, chọn hãng taxi rẻ hơn. Kéo, thả, quan sát rồi luyện bài từ cơ bản đến nâng cao.',
+   strip:'(a + b)² = a² + 2ab + b² &nbsp; a² − b² = (a − b)(a + b) &nbsp; y = ax + b &nbsp; a² + b² = c² &nbsp; V = ⅓·S·h',
+   data:()=>(window.DEFAULT_DATA||{})['toan-8'], store:'toan8' }
+];
+let SUBJ = SUBJECTS[0];
+const DATA_CACHE = {};
 /* =================== TIỆN ÍCH =================== */
 const app = document.getElementById('app');
 const fmt = (x,d=2)=> Number(x).toLocaleString('vi-VN',{maximumFractionDigits:d});
 const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let prog = {quiz:{}, ex:{}};
-try{ const s = JSON.parse(localStorage.getItem('vl8-prog')); if(s && s.quiz && s.ex) prog = s; }catch(e){}
-function save(){ try{ localStorage.setItem('vl8-prog', JSON.stringify(prog)); }catch(e){} }
+function loadProg(){ prog = {quiz:{}, ex:{}}; try{ const s = JSON.parse(localStorage.getItem(SUBJ.store+'-prog')); if(s && s.quiz && s.ex) prog = s; }catch(e){} }
+function save(){ try{ localStorage.setItem(SUBJ.store+'-prog', JSON.stringify(prog)); }catch(e){} }
 function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]} return a }
 let stopAnim = null;
 
@@ -233,57 +281,57 @@ function home(){
     return `<button class="idx-row" data-ch="${i}">
       <span class="idx-no">${i+1}</span>
       <span class="idx-body"><span class="idx-title">${c.title}</span>
-      <span class="idx-meta">Ôn tập đúng ${qb}/${qn}, nâng cao đã giải ${ed}/${en}</span>
+      <span class="idx-meta">Ôn tập đúng ${qb}/${qn}, bài tập đã giải ${ed}/${en}</span>
       <span class="bar"><i style="width:${pct}%"></i></span></span>
       <span class="idx-icon" aria-hidden="true">${c.icon}</span></button>`;
   }).join('');
   app.innerHTML = `
   <header class="hero">
-    <h1>Sổ tay <span class="scrib">Vật lý 8</span></h1>
-    <p>Ôn lại kiến thức cơ bản, tự tay làm thí nghiệm ảo, rồi thử sức với bài tập nâng cao có gợi ý và lời giải.</p>
-    <div class="formula-strip" aria-hidden="true">v = s/t &nbsp; p = d·h &nbsp; F<sub>A</sub> = d·V &nbsp; F₁d₁ = F₂d₂ &nbsp; I = I₁ + I₂ &nbsp; Q = mcΔt</div>
+    <h1>Sổ tay <span class="scrib">${SUBJ.name} 8</span></h1>
+    <p>${SUBJ.intro}</p>
+    <div class="formula-strip" aria-hidden="true">${SUBJ.strip}</div>
   </header>
   <nav class="index" aria-label="Các chương">${rows}</nav>
   <div class="extra">
     <button data-go="review"><b>Ôn tập tổng hợp</b><span>10 câu ngẫu nhiên từ mọi chương</span></button>
-    <button data-go="formulas"><b>Bảng công thức</b><span>Tất cả công thức trên một trang</span></button>
+    <button data-go="formulas"><b>${SUBJ.sheet}</b><span>${SUBJ.sheetSub}</span></button>
   </div>
   <div class="howto"><b>Cách học mỗi chương:</b>
     <ol><li>Đọc lý thuyết, chú ý phần tô vàng và các bẫy hay gặp.</li>
-    <li>Kéo thanh trượt trong thí nghiệm ảo, đoán kết quả trước khi nhìn số.</li>
+    <li>Vào phần ${SUBJ.lab.toLowerCase()}, đoán kết quả trước rồi mới kéo, bấm để kiểm tra.</li>
     <li>Làm phần ôn tập trắc nghiệm.</li>
-    <li>Giải bài nâng cao: tự làm ra giấy, chỉ xem gợi ý khi bí, nhập đáp số để kiểm tra.</li></ol>
+    <li>Giải bài tập: tự làm ra giấy, chỉ xem gợi ý khi bí, nhập đáp số để kiểm tra.</li></ol>
     <button class="reset" id="reset">Xóa tiến độ học</button>
   </div>
-  <footer>Kiến thức theo chương trình Khoa học tự nhiên 8, kèm một số phần mở rộng thường gặp trong đề thi học sinh giỏi. Tiến độ được lưu trên trình duyệt của máy này.</footer>`;
+  <footer>Kiến thức theo chương trình ${SUBJ.key==='toan-8'?'Toán 8':'Khoa học tự nhiên 8'} (Kết nối tri thức), kèm một số phần mở rộng thường gặp trong đề thi học sinh giỏi. Tiến độ của từng môn được lưu trên trình duyệt của máy này.</footer>`;
   app.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>chapter(+b.dataset.ch,'theory'));
   app.querySelector('[data-go=review]').onclick=review;
   app.querySelector('[data-go=formulas]').onclick=formulas;
-  document.getElementById('reset').onclick=()=>{ if(confirm('Xóa toàn bộ tiến độ học?')){prog={quiz:{},ex:{}};save();home();} };
+  document.getElementById('reset').onclick=()=>{ if(confirm('Xóa toàn bộ tiến độ học môn '+SUBJ.name+'?')){prog={quiz:{},ex:{}};save();home();} };
   window.scrollTo(0,0);
 }
 
 /* =================== CHƯƠNG =================== */
-const TABS=[['theory','Lý thuyết'],['lab','Thí nghiệm ảo'],['quiz','Ôn tập'],['ex','Nâng cao']];
+const TABS=()=>[['theory','Lý thuyết'],['lab',SUBJ.lab],['quiz','Ôn tập'],['ex','Bài tập']];
 function chapter(i,tab){
   if(stopAnim){stopAnim();stopAnim=null}
   const c = CH[i];
   if(tab==='lab' && !hasLab(c)) tab='theory';
   app.innerHTML = `
    <button class="back" id="back">← Mục lục</button>
-   <div class="ch-head"><div class="no">Chương ${i+1}</div><h2>${c.title}</h2></div>
-   <div class="tabs" role="tablist">${TABS.filter(([k])=>k!=='lab'||hasLab(c)).map(([k,n],j)=>`<button class="tab" role="tab" aria-selected="${k===tab}" data-tab="${k}"><span class="n">${j+1}</span>${n}</button>`).join('')}</div>
+   <div class="ch-head"><div class="no">${SUBJ.name} 8 · Chương ${i+1}</div><h2>${c.title}</h2></div>
+   <div class="tabs" role="tablist">${TABS().filter(([k])=>k!=='lab'||hasLab(c)).map(([k,n],j)=>`<button class="tab" role="tab" aria-selected="${k===tab}" data-tab="${k}"><span class="n">${j+1}</span>${n}</button>`).join('')}</div>
    <section id="pane"></section>
    <div class="next">${i<CH.length-1?`<button class="btn ghost" id="nextch">Chương ${i+2}: ${CH[i+1].title}</button>`:`<button class="btn ghost" id="nextch">Ôn tập tổng hợp</button>`}</div>`;
   document.getElementById('back').onclick=home;
   document.getElementById('nextch').onclick=()=> i<CH.length-1? chapter(i+1,'theory') : review();
   app.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>chapter(i,b.dataset.tab));
   const pane = document.getElementById('pane');
-  if(tab==='theory') pane.innerHTML = (c.theory||'<p class="muted">Chương này chưa có nội dung lý thuyết.</p>') + `<div class="next"><button class="btn" id="tolab">${hasLab(c)?'Sang thí nghiệm ảo':'Sang phần ôn tập'}</button></div>`, document.getElementById('tolab').onclick=()=>chapter(i,hasLab(c)?'lab':'quiz');
+  if(tab==='theory') pane.innerHTML = (c.theory||'<p class="muted">Chương này chưa có nội dung lý thuyết.</p>') + `<div class="next"><button class="btn" id="tolab">${hasLab(c)?'Sang phần '+SUBJ.lab.toLowerCase():'Sang phần ôn tập'}</button></div>`, document.getElementById('tolab').onclick=()=>chapter(i,hasLab(c)?'lab':'quiz');
   if(tab==='lab') LABS[c.lab](pane);
   if(tab==='quiz' && !c.quiz.length) pane.innerHTML='<p class="muted">Chương này chưa có câu hỏi ôn tập.</p>';
   else if(tab==='quiz') quiz(pane, c.quiz.map(q=>({...q})), score=>{ if(score>(prog.quiz[c.id]||0)){prog.quiz[c.id]=score;save()} });
-  if(tab==='ex' && !c.ex.length) pane.innerHTML='<p class="muted">Chương này chưa có bài nâng cao.</p>';
+  if(tab==='ex' && !c.ex.length) pane.innerHTML='<p class="muted">Chương này chưa có bài tập.</p>';
   else if(tab==='ex') exercises(pane,c);
   window.scrollTo(0,0);
 }
@@ -316,7 +364,7 @@ function quiz(pane, items, onDone, labels){
 function exercises(pane,c){
   c.ex.forEach(e=>{ e.d = e.d || 'Khác'; });
   const dangs=[...new Set(c.ex.map(e=>e.d))];
-  pane.innerHTML = `<p class="muted">★★ là bài vận dụng, ★★★ là bài khó. Hãy tự giải ra giấy trước, chỉ mở gợi ý khi thật sự bí. Chọn một dạng để luyện riêng:</p>
+  pane.innerHTML = `<p class="muted">★ là bài cơ bản, ★★ là bài vận dụng, ★★★ là bài nâng cao. Hãy tự giải ra giấy trước, chỉ mở gợi ý khi thật sự bí. Chọn một dạng để luyện riêng:</p>
    <div class="dang-list"><button aria-pressed="true" data-dg="">Tất cả (${c.ex.length})</button>${dangs.map(d=>`<button aria-pressed="false" data-dg="${esc(d)}">${d} (${c.ex.filter(e=>e.d===d).length})</button>`).join('')}</div>` +
    c.ex.map((e,k)=>{ const key=c.id+'-'+k, done=prog.ex[key];
     return `<div class="ex ${done?'done':''}" data-k="${k}" data-d="${esc(e.d)}">
@@ -356,9 +404,9 @@ function review(){
   const pool=[]; CH.forEach((c,i)=>c.quiz.forEach(q=>pool.push({...q,label:'Chương '+(i+1)})));
   const pick = shuffle(pool).slice(0,10);
   app.innerHTML = `<button class="back" id="back">← Mục lục</button>
-   <div class="ch-head"><div class="no">Tổng hợp</div><h2>Ôn tập tổng hợp</h2></div>
+   <div class="ch-head"><div class="no">${SUBJ.name} 8 · Tổng hợp</div><h2>Ôn tập tổng hợp</h2></div>
    <p class="muted">10 câu lấy ngẫu nhiên từ cả ${CH.length} chương. Bấm “Đề mới” để đổi bộ câu hỏi.</p>
-   <div class="row" style="margin-bottom:12px"><button class="btn ghost" id="newset">Đề mới</button><button class="btn ghost" id="tof">Bảng công thức</button></div>
+   <div class="row" style="margin-bottom:12px"><button class="btn ghost" id="newset">Đề mới</button><button class="btn ghost" id="tof">${SUBJ.sheet}</button></div>
    <section id="pane"></section>`;
   document.getElementById('back').onclick=home;
   document.getElementById('newset').onclick=review;
@@ -366,14 +414,24 @@ function review(){
   quiz(document.getElementById('pane'), pick, ()=>{}, pick.map(p=>p.label));
   window.scrollTo(0,0);
 }
+const EXTRA_SHEET = {
+ 'vat-ly-8': `<div class="sec"><h3>Đổi đơn vị cần nhớ</h3><ul>
+    <li>1 m/s = 3,6 km/h; 1 h = 3 600 s</li><li>1 cm² = 0,0001 m²; 1 cm³ = 0,000001 m³; 1 lít = 1 dm³ = 0,001 m³</li>
+    <li>1 g/cm³ = 1 000 kg/m³; d = 10·D</li><li>1 kW = 1 000 W; 1 mA = 0,001 A</li></ul></div>`,
+ 'hoa-8': `<div class="sec"><h3>Nguyên tử khối hay dùng</h3><div class="tbl"><table>
+    <tr><th>H</th><th>C</th><th>N</th><th>O</th><th>Na</th><th>Mg</th><th>Al</th><th>P</th><th>S</th></tr>
+    <tr><td>1</td><td>12</td><td>14</td><td>16</td><td>23</td><td>24</td><td>27</td><td>31</td><td>32</td></tr>
+    <tr><th>Cl</th><th>K</th><th>Ca</th><th>Fe</th><th>Cu</th><th>Zn</th><th>Ag</th><th>Ba</th><th>kk</th></tr>
+    <tr><td>35,5</td><td>39</td><td>40</td><td>56</td><td>64</td><td>65</td><td>108</td><td>137</td><td>29</td></tr></table></div>
+    <p class="muted">“kk” là khối lượng mol trung bình của không khí, dùng tính tỉ khối d<sub>A/kk</sub> = M<sub>A</sub>/29.</p></div>
+    <div class="sec"><h3>Đổi đơn vị cần nhớ</h3><ul><li>1 L = 1 000 mL = 1 dm³; 1 mL = 1 cm³</li><li>Khối lượng dung dịch: m<sub>dd</sub> = D·V (D tính bằng g/mL)</li><li>Thể tích mol khí ở điều kiện chuẩn (25 °C, 1 bar): 24,79 L/mol</li></ul></div>`
+};
 function formulas(){
   if(stopAnim){stopAnim();stopAnim=null}
   app.innerHTML = `<button class="back" id="back">← Mục lục</button>
-   <div class="ch-head"><div class="no">Tổng hợp</div><h2>Bảng công thức</h2></div>` +
+   <div class="ch-head"><div class="no">${SUBJ.name} 8 · Tổng hợp</div><h2>${SUBJ.sheet}</h2></div>` +
    CH.map((c,i)=>`<div class="sec fsheet"><h3>${i+1}. ${c.title}</h3>${c.formulas.map(([n,f])=>`<div class="fr"><span>${n}</span><b class="f" style="font-size:17px;margin:0">${esc(f)}</b></div>`).join('')}</div>`).join('') +
-   `<div class="sec"><h3>Đổi đơn vị cần nhớ</h3><ul>
-    <li>1 m/s = 3,6 km/h; 1 h = 3 600 s</li><li>1 cm² = 0,0001 m²; 1 cm³ = 0,000001 m³; 1 lít = 1 dm³ = 0,001 m³</li>
-    <li>1 g/cm³ = 1 000 kg/m³; d = 10·D</li><li>1 kW = 1 000 W; 1 mA = 0,001 A</li></ul></div>`;
+   (EXTRA_SHEET[SUBJ.key]||'');
   document.getElementById('back').onclick=home;
   window.scrollTo(0,0);
 }
@@ -606,30 +664,60 @@ heat(p){
 
 /* =================== TẢI NỘI DUNG =================== */
 function hasLab(c){ return !!(c.lab && LABS[c.lab]); }
+if(window.LAB_EXT) Object.assign(LABS, window.LAB_EXT);
 function useData(rows){
   CH = rows.map(r=>({ id:r.id, title:r.title, icon:r.icon||'📘', lab:r.lab||null, theory:r.theory||'',
     formulas:r.formulas||[], quiz:r.quiz||[], ex:r.ex||[] }));
 }
-async function boot(){
-  app.innerHTML = '<p class="muted" style="padding:40px 0">Đang tải bài học…</p>';
+function subjBar(){
+  const nav=document.getElementById('subj');
+  nav.innerHTML = SUBJECTS.map(x=>`<button aria-pressed="${x===SUBJ}" data-s="${x.key}"><span class="e" aria-hidden="true">${x.emoji}</span>${x.name}</button>`).join('');
+  nav.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{ if(b.dataset.s!==SUBJ.key) openSubject(b.dataset.s); else home(); });
+}
+async function loadRows(sub){
+  if(DATA_CACHE[sub.key]) return DATA_CACHE[sub.key];
   const cfg = window.APP_CONFIG || {};
   let rows = null;
   if(cfg.SUPABASE_URL && cfg.SUPABASE_KEY && !cfg.SUPABASE_URL.includes('xxxx')){
     try{
-      const url = cfg.SUPABASE_URL.replace(/\/$/,'') + '/rest/v1/chapters?select=*&published=eq.true&subject=eq.' + encodeURIComponent(cfg.SUBJECT||'vat-ly-8') + '&order=position.asc';
+      const url = cfg.SUPABASE_URL.replace(/\/$/,'') + '/rest/v1/chapters?select=*&published=eq.true&subject=eq.' + encodeURIComponent(sub.key) + '&order=position.asc';
       const r = await fetch(url, { headers:{ apikey: cfg.SUPABASE_KEY } });
       if(!r.ok) throw new Error('HTTP '+r.status);
       rows = await r.json();
-      if(rows.length){ try{ localStorage.setItem('vl8-cache', JSON.stringify(rows)); }catch(e){} }
+      if(rows.length){ try{ localStorage.setItem(sub.store+'-cache', JSON.stringify(rows)); }catch(e){} }
       else rows = null;
     }catch(err){
       console.warn('Không tải được dữ liệu từ Supabase, dùng bản lưu sẵn.', err);
-      try{ rows = JSON.parse(localStorage.getItem('vl8-cache')); }catch(e){}
+      try{ rows = JSON.parse(localStorage.getItem(sub.store+'-cache')); }catch(e){}
     }
   }
-  useData(rows && rows.length ? rows : (window.DEFAULT_CH || []));
+  rows = rows && rows.length ? rows : (sub.data() || []);
+  DATA_CACHE[sub.key] = rows;
+  return rows;
+}
+async function openSubject(key){
+  if(stopAnim){stopAnim();stopAnim=null}
+  SUBJ = SUBJECTS.find(x=>x.key===key) || SUBJECTS[0];
+  document.body.dataset.subj = SUBJ.key;
+  document.title = 'Sổ tay ' + SUBJ.name + ' 8';
+  try{ localStorage.setItem('st8-subject', SUBJ.key); }catch(e){}
+  if(location.hash.slice(1)!==SUBJ.hash){ try{ history.replaceState(null,'','#'+SUBJ.hash); }catch(e){} }
+  subjBar();
+  loadProg();
+  if(!DATA_CACHE[SUBJ.key]) app.innerHTML = '<p class="muted" style="padding:40px 0">Đang tải bài học…</p>';
+  const want = SUBJ;
+  const rows = await loadRows(SUBJ);
+  if(want!==SUBJ) return;
+  useData(rows);
   home();
 }
+function boot(){
+  const h = location.hash.slice(1);
+  let key = (SUBJECTS.find(x=>x.hash===h)||{}).key;
+  if(!key){ try{ key = localStorage.getItem('st8-subject'); }catch(e){} }
+  openSubject(key || SUBJECTS[0].key);
+}
+window.addEventListener('hashchange',()=>{ const x=SUBJECTS.find(x=>x.hash===location.hash.slice(1)); if(x && x!==SUBJ) openSubject(x.key); });
 boot();
 </script>
 </body>
