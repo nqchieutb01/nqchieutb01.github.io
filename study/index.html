@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sổ tay Vật lý 8</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Lora:ital,wght@1,500;1,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FAFBFD; --grid:rgba(60,110,190,.085); --ink:#1D2A44; --muted:#5B6B86;
+  --line:#CCD6E6; --card:#FFFFFF; --hl:#FFE066; --hl-soft:rgba(255,224,102,.55);
+  --accent:#2F5FD0; --accent-soft:rgba(47,95,208,.10); --ok:#23864F; --ok-soft:rgba(35,134,79,.12);
+  --bad:#C2413A; --bad-soft:rgba(194,65,58,.11); --liquid:#7FB2F0; --liquid2:#3E7BD6;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#131926; --grid:rgba(140,170,230,.07); --ink:#E6ECF7; --muted:#9AA8C2;
+    --line:#2E3A52; --card:#1A2232; --hl:#E8C547; --hl-soft:rgba(232,197,71,.30);
+    --accent:#86A8FF; --accent-soft:rgba(134,168,255,.14); --ok:#5FCB8D; --ok-soft:rgba(95,203,141,.14);
+    --bad:#F08078; --bad-soft:rgba(240,128,120,.14); --liquid:#2F5C9C; --liquid2:#5B8EDB;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#131926; --grid:rgba(140,170,230,.07); --ink:#E6ECF7; --muted:#9AA8C2;
+  --line:#2E3A52; --card:#1A2232; --hl:#E8C547; --hl-soft:rgba(232,197,71,.30);
+  --accent:#86A8FF; --accent-soft:rgba(134,168,255,.14); --ok:#5FCB8D; --ok-soft:rgba(95,203,141,.14);
+  --bad:#F08078; --bad-soft:rgba(240,128,120,.14); --liquid:#2F5C9C; --liquid2:#5B8EDB;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; color:var(--ink); background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:22px 22px;
+  font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  font-size:16px; line-height:1.6; -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 64px}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+h1,h2,h3{line-height:1.25;margin:0}
+p{margin:.5em 0}
+.muted{color:var(--muted)}
+.mark{background:linear-gradient(transparent 55%,var(--hl-soft) 55%);padding:0 2px}
+
+/* Hero */
+.hero{padding:18px 0 22px}
+.hero h1{font-size:clamp(34px,8vw,52px);font-weight:800;letter-spacing:-.02em}
+.hero h1 .scrib{display:inline-block;background:linear-gradient(transparent 62%,var(--hl) 62%);padding:0 4px;transform:rotate(-1.2deg)}
+.hero p{max-width:34em;color:var(--muted);font-size:17px}
+.formula-strip{font-family:Lora,Georgia,serif;font-style:italic;color:var(--accent);font-size:15px;opacity:.85;margin-top:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Index */
+.index{border-top:2px solid var(--ink);margin-top:8px}
+.idx-row{display:flex;gap:14px;align-items:center;width:100%;text-align:left;background:none;border:0;border-bottom:1px dashed var(--line);padding:14px 4px}
+.idx-row:hover{background:var(--accent-soft)}
+.idx-no{font-size:34px;font-weight:800;width:44px;color:var(--accent);line-height:1}
+.idx-body{flex:1;min-width:0}
+.idx-title{font-weight:700;font-size:17px}
+.idx-meta{font-size:13.5px;color:var(--muted)}
+.bar{height:5px;background:var(--line);border-radius:3px;margin-top:6px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--ok);width:0}
+.idx-icon{font-size:24px}
+.extra{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.extra button{background:var(--card);border:1.5px solid var(--ink);border-radius:12px;padding:14px;text-align:left}
+.extra button b{display:block;font-size:16px}
+.extra button span{font-size:13.5px;color:var(--muted)}
+.howto{margin-top:22px;font-size:14.5px;color:var(--muted)}
+.howto ol{padding-left:20px;margin:.3em 0}
+.reset{margin-top:18px;background:none;border:0;color:var(--muted);text-decoration:underline;font-size:13.5px;padding:0}
+
+/* Chapter */
+.back{background:none;border:0;color:var(--accent);font-weight:600;padding:6px 0}
+.ch-head{margin:6px 0 14px}
+.ch-head .no{color:var(--accent);font-weight:700;font-size:14px}
+.ch-head h2{font-size:clamp(26px,6vw,34px);font-weight:800;letter-spacing:-.01em}
+.tabs{display:flex;gap:6px;overflow-x:auto;position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);padding:8px 0;border-bottom:2px solid var(--ink);margin-bottom:16px}
+.tab{flex:0 0 auto;border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;font-size:14.5px;font-weight:600}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.tab .n{opacity:.6;margin-right:4px}
+
+.sec{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 16px 12px;margin-bottom:14px}
+.sec h3{font-size:18px;margin-bottom:6px}
+.sec ul{padding-left:20px;margin:.4em 0}
+.sec li{margin:.25em 0}
+.f{font-family:Lora,Georgia,serif;font-style:italic;font-size:19px;display:inline-block;background:linear-gradient(transparent 58%,var(--hl-soft) 58%);padding:0 6px;margin:4px 0}
+.fbox{display:flex;flex-wrap:wrap;gap:6px 18px;margin:8px 0}
+.note{border-left:4px solid var(--hl);padding:6px 12px;margin:10px 0;background:var(--hl-soft);border-radius:0 8px 8px 0;font-size:15px}
+.eg{border:1.5px dashed var(--accent);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:15px}
+.eg b:first-child{color:var(--accent)}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);vertical-align:2px;margin-left:6px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;font-size:14.5px;min-width:280px}
+td,th{border:1px solid var(--line);padding:5px 10px;text-align:left}
+th{background:var(--accent-soft)}
+
+/* Lab */
+.lab svg{width:100%;height:auto;display:block;background:var(--paper);border:1px solid var(--line);border-radius:10px}
+.ctrl{display:grid;grid-template-columns:1fr;gap:10px;margin:12px 0}
+@media(min-width:560px){.ctrl{grid-template-columns:1fr 1fr}}
+.ctrl label{font-size:14px;color:var(--muted);display:block}
+.ctrl label b{color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select{width:100%;padding:7px 8px;border-radius:8px;border:1.5px solid var(--line);background:var(--card)}
+.btn{border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);border-radius:10px;padding:8px 16px;font-weight:600}
+.btn.ghost{background:var(--card);color:var(--ink)}
+.btn:disabled{opacity:.5;cursor:default}
+.readout{background:var(--accent-soft);border-radius:10px;padding:10px 12px;font-size:15px;margin-top:10px}
+.readout .big{font-size:20px;font-weight:700}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.svgt{fill:var(--ink);font-family:"Be Vietnam Pro",system-ui,sans-serif;font-size:11px}
+.svgm{fill:var(--muted);font-family:"Be Vietnam Pro",system-ui,sans-serif;font-size:10px}
+.wire{fill:none;stroke:var(--ink);stroke-width:2}
+.wire.on{stroke:var(--accent);stroke-dasharray:6 6;animation:flow .8s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-12}}
+@media (prefers-reduced-motion:reduce){.wire.on{animation:none;stroke-dasharray:none}}
+.sw{cursor:pointer}
+
+/* Quiz */
+.q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.q .qt{font-weight:600;margin-bottom:8px}
+.q .qn{color:var(--accent);margin-right:6px}
+.opt{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:var(--paper);border-radius:10px;padding:9px 12px;margin:6px 0;font-size:15.5px}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.why{font-size:14.5px;margin-top:6px;padding:8px 10px;border-radius:8px;background:var(--accent-soft)}
+.score{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--paper);border-radius:12px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:600}
+.score .btn{background:var(--paper);color:var(--ink);border-color:var(--paper);padding:5px 12px}
+
+/* Exercises */
+.ex{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.ex.done{border-color:var(--ok)}
+.ex h4{margin:0 0 6px;font-size:16.5px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.lv{color:#D29A00;letter-spacing:1px;font-size:14px}
+.ex .done-badge{color:var(--ok);font-size:13px;font-weight:700}
+.check{display:flex;gap:8px;margin:10px 0 4px;flex-wrap:wrap;align-items:center}
+.check input{width:130px;padding:7px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--paper)}
+.fb{font-size:14.5px;font-weight:600}
+.fb.ok{color:var(--ok)} .fb.no{color:var(--bad)}
+.reveal{margin-top:8px;padding:10px 12px;border-radius:10px;font-size:15px}
+.reveal.hint{background:var(--hl-soft)}
+.reveal.sol{background:var(--ok-soft)}
+.next{margin-top:18px;display:flex;justify-content:flex-end}
+.fsheet h3{margin-top:4px}
+.fsheet .fr{display:flex;justify-content:space-between;gap:12px;border-bottom:1px dashed var(--line);padding:6px 0;flex-wrap:wrap}
+.fsheet .fr span{color:var(--muted);font-size:14.5px}
+footer{margin-top:30px;font-size:13px;color:var(--muted)}
+.apps{display:grid;grid-template-columns:1fr;gap:10px;margin:8px 0}
+@media(min-width:560px){.apps{grid-template-columns:1fr 1fr}}
+.app{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--paper);font-size:15px}
+.app b{display:block;margin-bottom:2px}
+.app .ico{font-size:20px;margin-right:4px}
+details.wq{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:8px 12px;margin:8px 0;background:var(--paper);font-size:15px}
+details.wq summary{cursor:pointer;font-weight:600;list-style:none}
+details.wq summary::before{content:"❓ "}
+details.wq[open] summary{margin-bottom:6px}
+.sec.real{border:1.5px solid var(--accent)}
+.sec.real>h3::before{content:"🌏 "}
+.dang{display:inline-block;font-size:12px;font-weight:600;padding:1px 8px;border-radius:6px;border:1px solid var(--line);color:var(--muted)}
+.dang-list{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px}
+.dang-list button{font-size:13px;padding:4px 10px;border-radius:999px;border:1.5px solid var(--line);background:var(--card)}
+.dang-list button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.ex svg{max-width:340px;width:100%;height:auto;display:block;margin:8px 0;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+</style>
+</head>
+<body>
+<main class="wrap" id="app"></main>
+
+<script src="config.js"></script>
+<script src="default-data.js"></script>
+<script>
+let CH = [];
+/* =================== TIỆN ÍCH =================== */
+const app = document.getElementById('app');
+const fmt = (x,d=2)=> Number(x).toLocaleString('vi-VN',{maximumFractionDigits:d});
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let prog = {quiz:{}, ex:{}};
+try{ const s = JSON.parse(localStorage.getItem('vl8-prog')); if(s && s.quiz && s.ex) prog = s; }catch(e){}
+function save(){ try{ localStorage.setItem('vl8-prog', JSON.stringify(prog)); }catch(e){} }
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]} return a }
+let stopAnim = null;
+
+/* =================== TRANG CHỦ =================== */
+function home(){
+  if(stopAnim){stopAnim();stopAnim=null}
+  const rows = CH.map((c,i)=>{
+    const qb = prog.quiz[c.id]||0, qn = c.quiz.length;
+    const ed = c.ex.filter((_,k)=>prog.ex[c.id+'-'+k]).length, en = c.ex.length;
+    const pct = Math.round(100*(qb+ed)/Math.max(1,qn+en));
+    return `<button class="idx-row" data-ch="${i}">
+      <span class="idx-no">${i+1}</span>
+      <span class="idx-body"><span class="idx-title">${c.title}</span>
+      <span class="idx-meta">Ôn tập đúng ${qb}/${qn}, nâng cao đã giải ${ed}/${en}</span>
+      <span class="bar"><i style="width:${pct}%"></i></span></span>
+      <span class="idx-icon" aria-hidden="true">${c.icon}</span></button>`;
+  }).join('');
+  app.innerHTML = `
+  <header class="hero">
+    <h1>Sổ tay <span class="scrib">Vật lý 8</span></h1>
+    <p>Ôn lại kiến thức cơ bản, tự tay làm thí nghiệm ảo, rồi thử sức với bài tập nâng cao có gợi ý và lời giải.</p>
+    <div class="formula-strip" aria-hidden="true">v = s/t &nbsp; p = d·h &nbsp; F<sub>A</sub> = d·V &nbsp; F₁d₁ = F₂d₂ &nbsp; I = I₁ + I₂ &nbsp; Q = mcΔt</div>
+  </header>
+  <nav class="index" aria-label="Các chương">${rows}</nav>
+  <div class="extra">
+    <button data-go="review"><b>Ôn tập tổng hợp</b><span>10 câu ngẫu nhiên từ mọi chương</span></button>
+    <button data-go="formulas"><b>Bảng công thức</b><span>Tất cả công thức trên một trang</span></button>
+  </div>
+  <div class="howto"><b>Cách học mỗi chương:</b>
+    <ol><li>Đọc lý thuyết, chú ý phần tô vàng và các bẫy hay gặp.</li>
+    <li>Kéo thanh trượt trong thí nghiệm ảo, đoán kết quả trước khi nhìn số.</li>
+    <li>Làm phần ôn tập trắc nghiệm.</li>
+    <li>Giải bài nâng cao: tự làm ra giấy, chỉ xem gợi ý khi bí, nhập đáp số để kiểm tra.</li></ol>
+    <button class="reset" id="reset">Xóa tiến độ học</button>
+  </div>
+  <footer>Kiến thức theo chương trình Khoa học tự nhiên 8, kèm một số phần mở rộng thường gặp trong đề thi học sinh giỏi. Tiến độ được lưu trên trình duyệt của máy này.</footer>`;
+  app.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>chapter(+b.dataset.ch,'theory'));
+  app.querySelector('[data-go=review]').onclick=review;
+  app.querySelector('[data-go=formulas]').onclick=formulas;
+  document.getElementById('reset').onclick=()=>{ if(confirm('Xóa toàn bộ tiến độ học?')){prog={quiz:{},ex:{}};save();home();} };
+  window.scrollTo(0,0);
+}
+
+/* =================== CHƯƠNG =================== */
+const TABS=[['theory','Lý thuyết'],['lab','Thí nghiệm ảo'],['quiz','Ôn tập'],['ex','Nâng cao']];
+function chapter(i,tab){
+  if(stopAnim){stopAnim();stopAnim=null}
+  const c = CH[i];
+  if(tab==='lab' && !hasLab(c)) tab='theory';
+  app.innerHTML = `
+   <button class="back" id="back">← Mục lục</button>
+   <div class="ch-head"><div class="no">Chương ${i+1}</div><h2>${c.title}</h2></div>
+   <div class="tabs" role="tablist">${TABS.filter(([k])=>k!=='lab'||hasLab(c)).map(([k,n],j)=>`<button class="tab" role="tab" aria-selected="${k===tab}" data-tab="${k}"><span class="n">${j+1}</span>${n}</button>`).join('')}</div>
+   <section id="pane"></section>
+   <div class="next">${i<CH.length-1?`<button class="btn ghost" id="nextch">Chương ${i+2}: ${CH[i+1].title}</button>`:`<button class="btn ghost" id="nextch">Ôn tập tổng hợp</button>`}</div>`;
+  document.getElementById('back').onclick=home;
+  document.getElementById('nextch').onclick=()=> i<CH.length-1? chapter(i+1,'theory') : review();
+  app.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>chapter(i,b.dataset.tab));
+  const pane = document.getElementById('pane');
+  if(tab==='theory') pane.innerHTML = (c.theory||'<p class="muted">Chương này chưa có nội dung lý thuyết.</p>') + `<div class="next"><button class="btn" id="tolab">${hasLab(c)?'Sang thí nghiệm ảo':'Sang phần ôn tập'}</button></div>`, document.getElementById('tolab').onclick=()=>chapter(i,hasLab(c)?'lab':'quiz');
+  if(tab==='lab') LABS[c.lab](pane);
+  if(tab==='quiz' && !c.quiz.length) pane.innerHTML='<p class="muted">Chương này chưa có câu hỏi ôn tập.</p>';
+  else if(tab==='quiz') quiz(pane, c.quiz.map(q=>({...q})), score=>{ if(score>(prog.quiz[c.id]||0)){prog.quiz[c.id]=score;save()} });
+  if(tab==='ex' && !c.ex.length) pane.innerHTML='<p class="muted">Chương này chưa có bài nâng cao.</p>';
+  else if(tab==='ex') exercises(pane,c);
+  window.scrollTo(0,0);
+}
+
+/* =================== TRẮC NGHIỆM =================== */
+function quiz(pane, items, onDone, labels){
+  let answered=0, right=0;
+  const prepared = items.map(it=>{ const opts = shuffle(it.o.map((t,k)=>({t,ok:k===0}))); return {...it,opts}; });
+  pane.innerHTML = prepared.map((it,n)=>`
+    <div class="q" data-q="${n}"><div class="qt"><span class="qn">Câu ${n+1}.</span>${labels&&labels[n]?`<span class="muted">(${labels[n]}) </span>`:''}${it.q}</div>
+    ${it.opts.map((o,k)=>`<button class="opt" data-k="${k}">${String.fromCharCode(65+k)}. ${o.t}</button>`).join('')}
+    <div class="why" hidden></div></div>`).join('') +
+    `<div class="score"><span id="sc">Đúng 0/${prepared.length}</span><button class="btn" id="redo">Làm lại</button></div>`;
+  pane.querySelectorAll('.q').forEach(box=>{
+    const it = prepared[+box.dataset.q];
+    box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      const k=+b.dataset.k, ok = it.opts[k].ok;
+      box.querySelectorAll('.opt').forEach((x,j)=>{ x.disabled=true; if(it.opts[j].ok) x.classList.add('right'); });
+      if(!ok) b.classList.add('wrong');
+      const w = box.querySelector('.why'); w.hidden=false; w.innerHTML = (ok?'<b style="color:var(--ok)">Chính xác!</b> ':'<b style="color:var(--bad)">Chưa đúng.</b> ')+it.why;
+      answered++; if(ok) right++;
+      document.getElementById('sc').textContent = `Đúng ${right}/${prepared.length}` + (answered===prepared.length? (right===prepared.length?', xuất sắc!':', xem lại câu sai nhé'):'');
+      if(answered===prepared.length) onDone(right);
+    });
+  });
+  document.getElementById('redo').onclick=()=>{ quiz(pane, items, onDone, labels); window.scrollTo(0,pane.offsetTop-60) };
+}
+
+/* =================== BÀI NÂNG CAO =================== */
+function exercises(pane,c){
+  c.ex.forEach(e=>{ e.d = e.d || 'Khác'; });
+  const dangs=[...new Set(c.ex.map(e=>e.d))];
+  pane.innerHTML = `<p class="muted">★★ là bài vận dụng, ★★★ là bài khó. Hãy tự giải ra giấy trước, chỉ mở gợi ý khi thật sự bí. Chọn một dạng để luyện riêng:</p>
+   <div class="dang-list"><button aria-pressed="true" data-dg="">Tất cả (${c.ex.length})</button>${dangs.map(d=>`<button aria-pressed="false" data-dg="${esc(d)}">${d} (${c.ex.filter(e=>e.d===d).length})</button>`).join('')}</div>` +
+   c.ex.map((e,k)=>{ const key=c.id+'-'+k, done=prog.ex[key];
+    return `<div class="ex ${done?'done':''}" data-k="${k}" data-d="${esc(e.d)}">
+     <h4><span class="lv" aria-label="${e.lv} sao">${'★'.repeat(e.lv)}</span>Bài ${k+1}. ${e.t} <span class="dang">${e.d}</span> ${done?'<span class="done-badge">Đã giải</span>':''}</h4>
+     <div>${e.q}</div>
+     ${(e.ans!==null&&e.ans!==undefined&&e.ans!=='')?`<div class="check"><input inputmode="decimal" placeholder="Đáp số" aria-label="Nhập đáp số"><span class="muted">${e.unit}</span><button class="btn ghost chk">Kiểm tra</button><span class="fb"></span></div>`:''}
+     <div class="row" style="margin-top:8px"><button class="btn ghost hintb">Xem gợi ý</button><button class="btn ghost solb">Xem lời giải</button>${(e.ans===null||e.ans===undefined||e.ans==='')?'<button class="btn ghost markb">Đánh dấu đã giải</button>':''}</div>
+     <div class="reveal hint" hidden><b>Gợi ý:</b> ${e.hint}</div>
+     <div class="reveal sol" hidden><b>Lời giải:</b><br>${e.sol}</div></div>`}).join('');
+  pane.querySelectorAll('[data-dg]').forEach(b=>b.onclick=()=>{
+    pane.querySelectorAll('[data-dg]').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    pane.querySelectorAll('.ex').forEach(x=>x.hidden = b.dataset.dg && x.dataset.d!==b.dataset.dg);
+  });
+  pane.querySelectorAll('.ex').forEach(box=>{
+    const k=+box.dataset.k, e=c.ex[k], key=c.id+'-'+k;
+    const mark=()=>{ prog.ex[key]=true; save(); box.classList.add('done'); if(!box.querySelector('.done-badge')) box.querySelector('h4').insertAdjacentHTML('beforeend','<span class="done-badge">Đã giải</span>'); };
+    box.querySelector('.hintb').onclick=()=>{ const h=box.querySelector('.hint'); h.hidden=!h.hidden };
+    box.querySelector('.solb').onclick=()=>{ const h=box.querySelector('.sol'); h.hidden=!h.hidden };
+    const mb=box.querySelector('.markb'); if(mb) mb.onclick=mark;
+    const chk=box.querySelector('.chk');
+    if(chk){ const inp=box.querySelector('input'), fb=box.querySelector('.fb');
+      const run=()=>{ const raw=inp.value.trim().replace(/\s/g,'');
+        // chấp nhận "6.180" kiểu nghìn hoặc dấu phẩy thập phân
+        let v = raw.includes(',') ? parseFloat(raw.replace(/\./g,'').replace(',','.')) : parseFloat(raw);
+        if(raw.includes('.') && !raw.includes(',') && /^\d{1,3}(\.\d{3})+$/.test(raw) && Math.abs(parseFloat(raw)-Number(e.ans))>Number(e.tol||0)) v = parseFloat(raw.replace(/\./g,''));
+        if(isNaN(v)){ fb.className='fb no'; fb.textContent='Hãy nhập một con số.'; return; }
+        if(Math.abs(v-Number(e.ans))<=Number(e.tol||0)){ fb.className='fb ok'; fb.textContent='Đúng rồi! 🎉'; mark(); }
+        else { fb.className='fb no'; fb.textContent='Chưa đúng, thử kiểm tra lại đơn vị.'; } };
+      chk.onclick=run; inp.onkeydown=ev=>{ if(ev.key==='Enter') run() };
+    }
+  });
+}
+
+/* =================== ÔN TẬP TỔNG HỢP & CÔNG THỨC =================== */
+function review(){
+  if(stopAnim){stopAnim();stopAnim=null}
+  const pool=[]; CH.forEach((c,i)=>c.quiz.forEach(q=>pool.push({...q,label:'Chương '+(i+1)})));
+  const pick = shuffle(pool).slice(0,10);
+  app.innerHTML = `<button class="back" id="back">← Mục lục</button>
+   <div class="ch-head"><div class="no">Tổng hợp</div><h2>Ôn tập tổng hợp</h2></div>
+   <p class="muted">10 câu lấy ngẫu nhiên từ cả ${CH.length} chương. Bấm “Đề mới” để đổi bộ câu hỏi.</p>
+   <div class="row" style="margin-bottom:12px"><button class="btn ghost" id="newset">Đề mới</button><button class="btn ghost" id="tof">Bảng công thức</button></div>
+   <section id="pane"></section>`;
+  document.getElementById('back').onclick=home;
+  document.getElementById('newset').onclick=review;
+  document.getElementById('tof').onclick=formulas;
+  quiz(document.getElementById('pane'), pick, ()=>{}, pick.map(p=>p.label));
+  window.scrollTo(0,0);
+}
+function formulas(){
+  if(stopAnim){stopAnim();stopAnim=null}
+  app.innerHTML = `<button class="back" id="back">← Mục lục</button>
+   <div class="ch-head"><div class="no">Tổng hợp</div><h2>Bảng công thức</h2></div>` +
+   CH.map((c,i)=>`<div class="sec fsheet"><h3>${i+1}. ${c.title}</h3>${c.formulas.map(([n,f])=>`<div class="fr"><span>${n}</span><b class="f" style="font-size:17px;margin:0">${esc(f)}</b></div>`).join('')}</div>`).join('') +
+   `<div class="sec"><h3>Đổi đơn vị cần nhớ</h3><ul>
+    <li>1 m/s = 3,6 km/h; 1 h = 3 600 s</li><li>1 cm² = 0,0001 m²; 1 cm³ = 0,000001 m³; 1 lít = 1 dm³ = 0,001 m³</li>
+    <li>1 g/cm³ = 1 000 kg/m³; d = 10·D</li><li>1 kW = 1 000 W; 1 mA = 0,001 A</li></ul></div>`;
+  document.getElementById('back').onclick=home;
+  window.scrollTo(0,0);
+}
+
+/* =================== THÍ NGHIỆM ẢO =================== */
+function slider(id,label,min,max,step,val,unit){
+  return `<label for="${id}">${label}: <b id="${id}-v">${fmt(val)} ${unit}</b></label><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-unit="${unit}">`;
+}
+function bindSliders(root,fn){
+  root.querySelectorAll('input[type=range],select,input[type=checkbox]').forEach(el=>{
+    el.addEventListener('input',()=>{ if(el.type==='range') root.querySelector('#'+el.id+'-v').textContent=fmt(el.value)+' '+el.dataset.unit; fn(); });
+  });
+}
+const val = id => +document.getElementById(id).value;
+
+const LABS = {
+/* ---- Chuyển động ---- */
+motion(p){
+  p.innerHTML = `<div class="sec lab"><h3>Hai xe gặp nhau</h3>
+   <p class="muted">Chọn khoảng cách, tốc độ, chiều chuyển động rồi bấm “Chạy”. Đoán trước: sau bao lâu hai xe gặp nhau?</p>
+   <svg viewBox="0 0 320 120" id="msvg" role="img" aria-label="Mô phỏng hai xe"></svg>
+   <div class="ctrl">
+    <div>${slider('L','Khoảng cách AB',20,200,10,120,'km')}</div>
+    <div><label for="dir">Chiều chuyển động</label><select id="dir"><option value="opp">Ngược chiều (đi về phía nhau)</option><option value="same">Cùng chiều (xe A đuổi xe B)</option></select></div>
+    <div>${slider('vA','Tốc độ xe A',10,100,5,40,'km/h')}</div>
+    <div>${slider('vB','Tốc độ xe B',10,100,5,20,'km/h')}</div>
+   </div>
+   <div class="row"><button class="btn" id="run">Chạy</button><span class="muted" id="clock">t = 0 h</span></div>
+   <div class="readout" id="mres"></div></div>`;
+  const svg=document.getElementById('msvg'); let raf=null;
+  function calc(){ const L=val('L'),a=val('vA'),b=val('vB'),opp=document.getElementById('dir').value==='opp';
+    const rel = opp? a+b : a-b; const t = rel>0? L/rel : Infinity; return {L,a,b,opp,t}; }
+  function draw(time){ const {L,a,b,opp,t}=calc();
+    const horizon = isFinite(t)? t : 3;
+    const span = opp? L : L + b*horizon; const sc = 280/span;
+    const xa = 20 + Math.min(a*time, opp? L : span)*sc*(1);
+    const xb = opp? 20 + (L - b*time)*sc : 20 + (L + b*time)*sc;
+    svg.innerHTML = `<line x1="10" y1="80" x2="310" y2="80" stroke="var(--muted)" stroke-width="2"/>
+     <line x1="10" y1="80" x2="310" y2="80" stroke="var(--paper)" stroke-width="1" stroke-dasharray="8 8"/>
+     <text x="20" y="100" class="svgt" text-anchor="middle">A</text><text x="${20+L*sc}" y="100" class="svgt" text-anchor="middle">B</text>
+     <line x1="20" y1="76" x2="20" y2="84" stroke="var(--ink)"/><line x1="${20+L*sc}" y1="76" x2="${20+L*sc}" y2="84" stroke="var(--ink)"/>
+     <g transform="translate(${xa},62)"><rect x="-12" y="0" width="24" height="12" rx="3" fill="var(--accent)"/><circle cx="-6" cy="14" r="3" fill="var(--ink)"/><circle cx="6" cy="14" r="3" fill="var(--ink)"/><text y="-4" class="svgt" text-anchor="middle">xe A</text></g>
+     <g transform="translate(${xb},62)"><rect x="-12" y="0" width="24" height="12" rx="3" fill="#D29A00"/><circle cx="-6" cy="14" r="3" fill="var(--ink)"/><circle cx="6" cy="14" r="3" fill="var(--ink)"/><text y="-4" class="svgt" text-anchor="middle">xe B</text></g>
+     <text x="160" y="22" class="svgm" text-anchor="middle">${opp?'Khoảng cách giảm '+(a+b)+' km mỗi giờ':(a>b?'Khoảng cách giảm '+(a-b)+' km mỗi giờ':'Xe A không nhanh hơn xe B')}</text>`;
+    document.getElementById('clock').textContent='t = '+fmt(time)+' h';
+  }
+  function result(){ const {L,a,b,opp,t}=calc(); const r=document.getElementById('mres');
+    if(!isFinite(t)) r.innerHTML = `Xe A đi chậm hơn hoặc bằng xe B nên <b>không bao giờ đuổi kịp</b>.`;
+    else r.innerHTML = `<div class="big">Gặp nhau sau t = ${fmt(L)} / ${opp?`(${a} + ${b})`:`(${a} − ${b})`} = ${fmt(t)} h</div>Chỗ gặp cách A: ${a} × ${fmt(t)} = ${fmt(a*t)} km.`; }
+  function stop(){ if(raf){cancelAnimationFrame(raf);raf=null} }
+  stopAnim=stop;
+  document.getElementById('run').onclick=()=>{ stop(); const {t}=calc(); const T=isFinite(t)?t:3; const t0=performance.now(); const dur=2600;
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce){ draw(T); result(); return; }
+    const step=now=>{ const k=Math.min(1,(now-t0)/dur); draw(T*k); if(k<1) raf=requestAnimationFrame(step); else result(); }; raf=requestAnimationFrame(step); };
+  bindSliders(p,()=>{stop();draw(0);result()}); draw(0); result();
+},
+
+/* ---- Áp suất chất lỏng ---- */
+pressure(p){
+  p.innerHTML = `<div class="sec lab"><h3>Áp suất theo độ sâu</h3>
+   <p class="muted">Kéo điểm đo xuống sâu hơn hoặc đổi chất lỏng. Áp suất thay đổi thế nào?</p>
+   <svg viewBox="0 0 320 230" id="psvg" role="img" aria-label="Bể chất lỏng và điểm đo áp suất"></svg>
+   <div class="ctrl">
+    <div>${slider('h','Độ sâu h',0,10,0.5,3,'m')}</div>
+    <div><label for="liq">Chất lỏng</label><select id="liq"><option value="10000">Nước (d = 10 000 N/m³)</option><option value="8000">Dầu (d = 8 000 N/m³)</option><option value="10300">Nước biển (d = 10 300 N/m³)</option><option value="136000">Thủy ngân (d = 136 000 N/m³)</option></select></div>
+    <div><label><input type="checkbox" id="atm"> Cộng thêm áp suất khí quyển (≈ 103 360 Pa)</label></div>
+   </div>
+   <div class="readout" id="pres"></div></div>`;
+  function draw(){ const h=val('h'), d=+document.getElementById('liq').value, atm=document.getElementById('atm').checked;
+    const pl=d*h, pt=pl+(atm?103360:0); const y=30+h*18; const ar = 6+Math.min(26, Math.sqrt(pl/10000)*9);
+    const col = d===136000?'#9AA3AE':(d===8000?'#E2B24A':'var(--liquid)');
+    let ticks=''; for(let m=0;m<=10;m+=2) ticks+=`<line x1="44" y1="${30+m*18}" x2="52" y2="${30+m*18}" stroke="var(--ink)"/><text x="40" y="${34+m*18}" class="svgm" text-anchor="end">${m} m</text>`;
+    document.getElementById('psvg').innerHTML = `
+     <rect x="60" y="30" width="200" height="182" fill="${col}" opacity=".55"/>
+     <path d="M60 14 V212 H260 V14" fill="none" stroke="var(--ink)" stroke-width="2.5"/>
+     <text x="160" y="24" class="svgm" text-anchor="middle">mặt thoáng</text>${ticks}
+     <line x1="160" y1="30" x2="160" y2="${y}" stroke="var(--ink)" stroke-dasharray="3 3"/>
+     <text x="166" y="${30+(y-30)/2}" class="svgt">h</text>
+     <g stroke="var(--bad)" stroke-width="2.5" marker-end="url(#ah)">
+      <line x1="${160-ar-6}" y1="${y}" x2="154" y2="${y}"/><line x1="${160+ar+6}" y1="${y}" x2="166" y2="${y}"/>
+      <line x1="160" y1="${y-ar-6}" x2="160" y2="${y-6}"/><line x1="160" y1="${y+ar+6}" x2="160" y2="${y+6}"/></g>
+     <circle cx="160" cy="${y}" r="4" fill="var(--ink)"/>
+     <defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--bad)"/></marker></defs>`;
+    document.getElementById('pres').innerHTML = `<div class="big">p = d·h = ${fmt(d)} × ${fmt(h)} = ${fmt(pl)} Pa</div>`+
+      (atm?`Tổng áp suất tại điểm đo: ${fmt(pl)} + 103 360 = <b>${fmt(pt)} Pa</b><br>`:'')+
+      `<span class="muted">Các mũi tên đỏ: áp suất tác dụng theo mọi hướng, và lớn dần khi xuống sâu.</span>`; }
+  bindSliders(p,draw); draw();
+},
+
+/* ---- Sự nổi ---- */
+buoy(p){
+  p.innerHTML = `<div class="sec lab"><h3>Vật nổi hay chìm?</h3>
+   <p class="muted">Một khối lập phương thể tích 1 dm³. Thay đổi khối lượng riêng của vật và chất lỏng để xem vật nổi, lơ lửng hay chìm.</p>
+   <svg viewBox="0 0 320 220" id="bsvg" role="img" aria-label="Khối vật trong bể chất lỏng"></svg>
+   <div class="ctrl">
+    <div>${slider('Dv','Khối lượng riêng của vật',100,3000,50,600,'kg/m³')}</div>
+    <div><label for="bl">Chất lỏng</label><select id="bl"><option value="1000">Nước (1 000 kg/m³)</option><option value="800">Dầu (800 kg/m³)</option><option value="1030">Nước biển (1 030 kg/m³)</option><option value="13600">Thủy ngân (13 600 kg/m³)</option></select></div>
+   </div>
+   <div class="readout" id="bres"></div>
+   <p class="muted" style="font-size:14px">Gợi ý thử: gỗ ≈ 600, nước đá ≈ 900, nhôm ≈ 2 700. Đặt vật 800 kg/m³ vào dầu xem điều gì xảy ra.</p></div>`;
+  function draw(){ const Dv=val('Dv'), Dl=+document.getElementById('bl').value; const r=Dv/Dl, s=70, surf=70, bottom=205;
+    let top, state; if(r<0.995){ top=surf-s*(1-r); state='nổi'; } else if(r<=1.005){ top=surf+40; state='lơ lửng'; } else { top=bottom-s; state='chìm xuống đáy'; }
+    const col = Dl===13600?'#9AA3AE':(Dl===800?'#E2B24A':'var(--liquid)');
+    const P = 10*Dv*0.001, FAmax = 10*Dl*0.001, FA = state==='nổi'? P : FAmax;
+    const aP = 8+P*1.4, aF = 8+Math.min(FA,40)*1.4, cx=160, cy=top+s/2;
+    document.getElementById('bsvg').innerHTML = `
+     <rect x="40" y="${surf}" width="240" height="${bottom-surf}" fill="${col}" opacity=".5"/>
+     <path d="M40 20 V${bottom} H280 V20" fill="none" stroke="var(--ink)" stroke-width="2.5"/>
+     <rect x="${cx-s/2}" y="${top}" width="${s}" height="${s}" fill="#B07A45" stroke="var(--ink)" stroke-width="1.5" opacity=".92"/>
+     ${state==='nổi'?`<line x1="${cx-s/2}" y1="${surf}" x2="${cx+s/2}" y2="${surf}" stroke="var(--paper)" stroke-dasharray="4 3"/>`:''}
+     <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="context-stroke"/></marker></defs>
+     <line x1="${cx-14}" y1="${cy}" x2="${cx-14}" y2="${cy+aP}" stroke="var(--bad)" stroke-width="3" marker-end="url(#ar)"/>
+     <text x="${cx-20}" y="${cy+aP+4}" class="svgt" text-anchor="end">P</text>
+     <line x1="${cx+14}" y1="${cy}" x2="${cx+14}" y2="${cy-aF}" stroke="var(--ok)" stroke-width="3" marker-end="url(#ar)"/>
+     <text x="${cx+20}" y="${cy-aF+4}" class="svgt">F<tspan baseline-shift="sub" font-size="8">A</tspan></text>`;
+    const pct = Math.min(100, r*100);
+    document.getElementById('bres').innerHTML = `<div class="big">Vật ${state}</div>
+      D<sub>vật</sub>/D<sub>lỏng</sub> = ${fmt(Dv)}/${fmt(Dl)} = ${fmt(r,3)}<br>
+      Trọng lượng P = ${fmt(P)} N; lực đẩy khi chìm hoàn toàn = ${fmt(FAmax)} N<br>`+
+      (state==='nổi'?`Khi nổi yên: F<sub>A</sub> = P = ${fmt(P)} N, phần chìm chiếm <b>${fmt(pct,1)}%</b> thể tích.`: state==='chìm xuống đáy'?`P &gt; F<sub>A</sub> nên vật chìm. Đáy bình đỡ phần còn lại ${fmt(P-FAmax)} N.`:`P = F<sub>A</sub> nên vật đứng yên ở bất kỳ độ sâu nào.`); }
+  bindSliders(p,draw); draw();
+},
+
+/* ---- Đòn bẩy ---- */
+lever(p){
+  p.innerHTML = `<div class="sec lab"><h3>Cân bằng đòn bẩy</h3>
+   <p class="muted">Treo hai vật lên hai bên điểm tựa. Tìm vị trí để thanh nằm ngang: F₁·d₁ = F₂·d₂.</p>
+   <svg viewBox="0 0 320 200" id="lsvg" role="img" aria-label="Đòn bẩy với hai vật treo"></svg>
+   <div class="ctrl">
+    <div>${slider('F1','Vật trái F₁',10,100,5,60,'N')}</div>
+    <div>${slider('F2','Vật phải F₂',10,100,5,30,'N')}</div>
+    <div>${slider('d1','Cánh tay đòn trái d₁',0.1,1,0.05,0.4,'m')}</div>
+    <div>${slider('d2','Cánh tay đòn phải d₂',0.1,1,0.05,0.6,'m')}</div>
+   </div>
+   <div class="readout" id="lres"></div></div>`;
+  function draw(){ const F1=val('F1'),F2=val('F2'),d1=val('d1'),d2=val('d2'); const M1=F1*d1, M2=F2*d2;
+    const diff=M2-M1; const ang = Math.abs(diff)<1e-9?0:Math.max(-14,Math.min(14,diff*0.9+(diff>0?2:-2)));
+    const rad=ang*Math.PI/180, px=160, py=80, L=130, sc=130;
+    const pt = dx=>[px+dx*Math.cos(rad), py+dx*Math.sin(rad)];
+    const [ex1,ey1]=pt(-L),[ex2,ey2]=pt(L),[h1x,h1y]=pt(-d1*sc),[h2x,h2y]=pt(d2*sc);
+    const b1=12+F1*0.22, b2=12+F2*0.22;
+    let tk=''; for(let k=1;k<=10;k++){ const [a,b]=pt(-k*13),[c,d]=pt(k*13); tk+=`<circle cx="${a}" cy="${b}" r="1.3" fill="var(--paper)"/><circle cx="${c}" cy="${d}" r="1.3" fill="var(--paper)"/>`; }
+    document.getElementById('lsvg').innerHTML = `
+     <polygon points="${px},${py+4} ${px-14},${py+34} ${px+14},${py+34}" fill="var(--muted)"/>
+     <line x1="${px-40}" y1="${py+34}" x2="${px+40}" y2="${py+34}" stroke="var(--ink)" stroke-width="2"/>
+     <line x1="${ex1}" y1="${ey1}" x2="${ex2}" y2="${ey2}" stroke="var(--ink)" stroke-width="7" stroke-linecap="round"/>${tk}
+     <line x1="${h1x}" y1="${h1y}" x2="${h1x}" y2="${h1y+30}" stroke="var(--ink)"/>
+     <rect x="${h1x-b1/2}" y="${h1y+30}" width="${b1}" height="${b1}" fill="var(--accent)"/><text x="${h1x}" y="${h1y+30+b1+13}" class="svgt" text-anchor="middle">${F1} N</text>
+     <line x1="${h2x}" y1="${h2y}" x2="${h2x}" y2="${h2y+30}" stroke="var(--ink)"/>
+     <rect x="${h2x-b2/2}" y="${h2y+30}" width="${b2}" height="${b2}" fill="#D29A00"/><text x="${h2x}" y="${h2y+30+b2+13}" class="svgt" text-anchor="middle">${F2} N</text>
+     <text x="${px}" y="${py+48}" class="svgm" text-anchor="middle">điểm tựa O</text>`;
+    const bal=Math.abs(diff)<1e-9;
+    document.getElementById('lres').innerHTML = `M₁ = ${F1} × ${fmt(d1)} = <b>${fmt(M1)} N·m</b> &nbsp; M₂ = ${F2} × ${fmt(d2)} = <b>${fmt(M2)} N·m</b><br>`+
+      (bal?`<div class="big" style="color:var(--ok)">Cân bằng! M₁ = M₂</div>`:`<div class="big">Thanh nghiêng về bên ${diff>0?'phải':'trái'}</div><span class="muted">Để cân bằng với d₂ hiện tại, cần F₂ = ${fmt(M1/d2)} N.</span>`); }
+  bindSliders(p,draw); draw();
+},
+
+/* ---- Mạch điện ---- */
+circuit(p){
+  let mode='series', K1=true, K2=true;
+  p.innerHTML = `<div class="sec lab"><h3>Mạch nối tiếp và song song</h3>
+   <p class="muted">Bấm vào công tắc K₁, K₂ trên hình để đóng/mở. So sánh hai cách mắc. Phần số đo dùng định luật Ohm (lớp 9) với Đ1 = 6 Ω, Đ2 = 12 Ω.</p>
+   <div class="row" style="margin-bottom:10px"><button class="btn" id="mS">Nối tiếp</button><button class="btn ghost" id="mP">Song song</button></div>
+   <svg viewBox="0 0 320 180" id="csvg" role="img" aria-label="Sơ đồ mạch điện"></svg>
+   <div class="ctrl"><div>${slider('U','Hiệu điện thế nguồn U',3,12,1,12,'V')}</div></div>
+   <div class="readout" id="cres"></div></div>`;
+  const sw=(x,y,on,lab,id)=>`<g class="sw" data-sw="${id}" tabindex="0" role="button" aria-label="Công tắc ${lab} ${on?'đóng':'mở'}">
+     <rect x="${x-18}" y="${y-18}" width="36" height="30" fill="var(--paper)"/>
+     <circle cx="${x-12}" cy="${y}" r="3" fill="var(--ink)"/><circle cx="${x+12}" cy="${y}" r="3" fill="var(--ink)"/>
+     <line x1="${x-12}" y1="${y}" x2="${on?x+12:x+9}" y2="${on?y:y-13}" stroke="var(--ink)" stroke-width="2.5"/>
+     <text x="${x}" y="${y+22}" class="svgt" text-anchor="middle">${lab}</text></g>`;
+  const bulb=(x,y,lit,lab)=>`${lit?`<circle cx="${x}" cy="${y}" r="22" fill="var(--hl)" opacity=".45"/>`:''}
+     <circle cx="${x}" cy="${y}" r="12" fill="${lit?'var(--hl)':'var(--paper)'}" stroke="var(--ink)" stroke-width="2"/>
+     <line x1="${x-8}" y1="${y-8}" x2="${x+8}" y2="${y+8}" stroke="var(--ink)" stroke-width="1.5"/><line x1="${x-8}" y1="${y+8}" x2="${x+8}" y2="${y-8}" stroke="var(--ink)" stroke-width="1.5"/>
+     <text x="${x}" y="${y+28}" class="svgt" text-anchor="middle">${lab}</text>`;
+  const bat=(x,y)=>`<rect x="${x-10}" y="${y-16}" width="20" height="32" fill="var(--paper)"/>
+     <line x1="${x-4}" y1="${y-15}" x2="${x-4}" y2="${y+15}" stroke="var(--ink)" stroke-width="2"/>
+     <line x1="${x+4}" y1="${y-8}" x2="${x+4}" y2="${y+8}" stroke="var(--ink)" stroke-width="4"/>
+     <text x="${x-12}" y="${y-18}" class="svgt">+</text><text x="${x+8}" y="${y-12}" class="svgt">−</text>
+     <text x="${x}" y="${y+30}" class="svgm" text-anchor="middle">nguồn</text>`;
+  function draw(){ const U=val('U'); let I1,I2,I,html,txt;
+    if(mode==='series'){ const on=K1&&K2; I=on?U/18:0; I1=I2=I;
+      html = `<path d="M30 40 H290 V140 H30 Z" class="wire ${on?'on':''}"/>` + sw(70,40,K1,'K₁','1') + bulb(130,40,on,'Đ1') + sw(195,40,K2,'K₂','2') + bulb(250,40,on,'Đ2') + bat(160,140);
+      txt = on? `<div class="big">I = I₁ = I₂ = ${fmt(I,3)} A</div>U₁ = ${fmt(I*6)} V, U₂ = ${fmt(I*12)} V ⇒ U₁ + U₂ = ${fmt(U)} V = U ✓<br><span class="muted">Mở một công tắc bất kỳ: cả hai đèn cùng tắt.</span>`
+              : `<div class="big">Mạch hở, I = 0</div><span class="muted">Mạch nối tiếp chỉ có một đường cho dòng điện, hở ở đâu cũng làm cả mạch tắt.</span>`;
+    } else { I1=K1?U/6:0; I2=K2?U/12:0; I=I1+I2; const any=I>0;
+      html = `<path d="M30 140 V40" class="wire ${any?'on':''}"/><path d="M290 40 V140" class="wire ${any?'on':''}"/><path d="M290 140 H30" class="wire ${any?'on':''}"/>
+        <path d="M30 40 H290" class="wire ${K1?'on':''}"/><path d="M30 92 H290" class="wire ${K2?'on':''}"/>`
+        + sw(95,40,K1,'K₁','1') + bulb(205,40,K1,'Đ1') + sw(95,92,K2,'K₂','2') + bulb(205,92,K2,'Đ2') + bat(160,140);
+      txt = `<div class="big">I = I₁ + I₂ = ${fmt(I1,3)} + ${fmt(I2,3)} = ${fmt(I,3)} A</div>U₁ = U₂ = U = ${fmt(U)} V (với nhánh đang đóng)<br><span class="muted">Mỗi nhánh có công tắc riêng, giống đèn trong nhà em.</span>`; }
+    const s=document.getElementById('csvg'); s.innerHTML=html; document.getElementById('cres').innerHTML=txt;
+    s.querySelectorAll('[data-sw]').forEach(g=>{ const t=()=>{ if(g.dataset.sw==='1') K1=!K1; else K2=!K2; draw(); };
+      g.addEventListener('click',t); g.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){e.preventDefault();t()} }); });
+    document.getElementById('mS').className='btn'+(mode==='series'?'':' ghost'); document.getElementById('mP').className='btn'+(mode==='parallel'?'':' ghost'); }
+  document.getElementById('mS').onclick=()=>{mode='series';draw()};
+  document.getElementById('mP').onclick=()=>{mode='parallel';draw()};
+  bindSliders(p,draw); draw();
+},
+
+/* ---- Cân bằng nhiệt ---- */
+heat(p){
+  p.innerHTML = `<div class="sec lab"><h3>Trộn nóng và lạnh</h3>
+   <p class="muted">Thả vật 1 vào nước (vật 2). Đoán trước nhiệt độ cuối, rồi xem kết quả từ Q<sub>tỏa</sub> = Q<sub>thu</sub>.</p>
+   <svg viewBox="0 0 320 190" id="hsvg" role="img" aria-label="Ba nhiệt kế"></svg>
+   <div class="ctrl">
+    <div><label for="mat">Chất của vật 1</label><select id="mat"><option value="4200">Nước (c = 4 200)</option><option value="880">Nhôm (c = 880)</option><option value="460">Sắt (c = 460)</option><option value="380" selected>Đồng (c = 380)</option><option value="130">Chì (c = 130)</option></select></div>
+    <div>${slider('m1','Khối lượng vật 1',0.1,3,0.1,0.5,'kg')}</div>
+    <div>${slider('t1','Nhiệt độ vật 1',0,100,1,100,'°C')}</div>
+    <div>${slider('m2','Khối lượng nước (vật 2)',0.1,3,0.1,2,'kg')}</div>
+    <div>${slider('t2','Nhiệt độ nước',0,100,1,20,'°C')}</div>
+   </div>
+   <div class="readout" id="hres"></div></div>`;
+  function th(x,t,lab,col){ const h=t*1.3; return `<rect x="${x-7}" y="20" width="14" height="135" rx="7" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.5"/>
+     <rect x="${x-4}" y="${150-h}" width="8" height="${h+5}" fill="${col}"/><circle cx="${x}" cy="160" r="11" fill="${col}" stroke="var(--ink)" stroke-width="1.5"/>
+     <text x="${x}" y="14" class="svgt" text-anchor="middle">${fmt(t,1)}°C</text><text x="${x}" y="185" class="svgm" text-anchor="middle">${lab}</text>`; }
+  function draw(){ const c1=+document.getElementById('mat').value, m1=val('m1'),t1=val('t1'),m2=val('m2'),t2=val('t2'); const c2=4200;
+    const t=(m1*c1*t1+m2*c2*t2)/(m1*c1+m2*c2); const Q=Math.abs(m1*c1*(t1-t));
+    const name=document.getElementById('mat').selectedOptions[0].text.split(' (')[0];
+    document.getElementById('hsvg').innerHTML = th(70,t1,'vật 1: '+name.toLowerCase(),'var(--bad)')+th(160,t,'cân bằng','#9B59B6')+th(250,t2,'vật 2: nước','var(--liquid2)')+
+      `<text x="115" y="95" class="svgm" text-anchor="middle">➜</text><text x="205" y="95" class="svgm" text-anchor="middle">➜</text>`;
+    const hot = t1>t2?'Vật 1':'Nước'; 
+    document.getElementById('hres').innerHTML = Math.abs(t1-t2)<1e-9? `<div class="big">Hai vật cùng nhiệt độ, không có truyền nhiệt.</div>`:
+     `<div class="big">t = ${fmt(t,1)}°C</div>${hot} tỏa nhiệt, vật còn lại thu nhiệt.<br>Nhiệt lượng trao đổi: Q ≈ ${fmt(Q,0)} J<br>
+     <span class="muted">t = (m₁c₁t₁ + m₂c₂t₂) / (m₁c₁ + m₂c₂). Nhận xét: kim loại có c nhỏ nên dù rất nóng cũng ít làm nước ấm lên.</span>`; }
+  bindSliders(p,draw); draw();
+}
+};
+
+
+/* =================== TẢI NỘI DUNG =================== */
+function hasLab(c){ return !!(c.lab && LABS[c.lab]); }
+function useData(rows){
+  CH = rows.map(r=>({ id:r.id, title:r.title, icon:r.icon||'📘', lab:r.lab||null, theory:r.theory||'',
+    formulas:r.formulas||[], quiz:r.quiz||[], ex:r.ex||[] }));
+}
+async function boot(){
+  app.innerHTML = '<p class="muted" style="padding:40px 0">Đang tải bài học…</p>';
+  const cfg = window.APP_CONFIG || {};
+  let rows = null;
+  if(cfg.SUPABASE_URL && cfg.SUPABASE_KEY && !cfg.SUPABASE_URL.includes('xxxx')){
+    try{
+      const url = cfg.SUPABASE_URL.replace(/\/$/,'') + '/rest/v1/chapters?select=*&published=eq.true&subject=eq.' + encodeURIComponent(cfg.SUBJECT||'vat-ly-8') + '&order=position.asc';
+      const r = await fetch(url, { headers:{ apikey: cfg.SUPABASE_KEY } });
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      rows = await r.json();
+      if(rows.length){ try{ localStorage.setItem('vl8-cache', JSON.stringify(rows)); }catch(e){} }
+      else rows = null;
+    }catch(err){
+      console.warn('Không tải được dữ liệu từ Supabase, dùng bản lưu sẵn.', err);
+      try{ rows = JSON.parse(localStorage.getItem('vl8-cache')); }catch(e){}
+    }
+  }
+  useData(rows && rows.length ? rows : (window.DEFAULT_CH || []));
+  home();
+}
+boot();
+</script>
+</body>
+</html>
