@@ -2,14 +2,17 @@
    TÀI KHOẢN HỌC SINH: đăng nhập bằng tên đăng nhập + mật khẩu,
    lưu tiến độ học vào Supabase (bảng progress) để học tiếp trên máy khác.
    Không cần email thật: tên đăng nhập được đổi thành một email ảo nội bộ.
+   Mỗi môn lưu một dòng riêng (bảng progress, khóa user_id + subject).
    ================================================================= */
 (function(){
   const cfg = window.APP_CONFIG || {};
-  const SUBJECT = cfg.SUBJECT || 'vat-ly-8';
+  const cur = () => (typeof SUBJ !== 'undefined' && SUBJ) ? SUBJ : { key: cfg.SUBJECT || 'vat-ly-8', store: 'vl8' };
   const DOMAIN = 'hocsinh.sotay';
   const enabled = !!(window.supabase && cfg.SUPABASE_URL && !cfg.SUPABASE_URL.includes('xxxx')
                      && cfg.SUPABASE_KEY && !cfg.SUPABASE_KEY.includes('DAN_'));
-  let sb = null, user = null, timer = null, state = '';
+  let sb = null, user = null, state = '';
+  let remote = {};          // tiến độ trên server, theo từng môn
+  const timers = {};
   const ACC = { enabled };
   window.ACC = ACC;
   const esc = s => String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -56,25 +59,36 @@
     try{
       const { data } = await sb.auth.getSession();
       user = data.session ? data.session.user : null;
-      if(user) await pull();
+      if(user) await fetchAll();
     }catch(e){ console.warn(e); }
   };
 
-  async function pull(){
-    const { data, error } = await sb.from('progress').select('data').eq('user_id', user.id).eq('subject', SUBJECT).maybeSingle();
+  async function fetchAll(){
+    const { data, error } = await sb.from('progress').select('subject,data').eq('user_id', user.id);
     if(error){ console.warn('Không đọc được tiến độ', error); setState('Chưa đồng bộ được, sẽ thử lại.'); return; }
-    const remote = data && data.data && data.data.quiz ? data.data : empty();
-    prog = merge(remote, prog);   // gộp tiến độ làm trên máy này (khi chưa đăng nhập) vào tài khoản
-    save();
+    remote = {};
+    (data || []).forEach(r => { if(r.data && r.data.quiz) remote[r.subject] = r.data; });
   }
+
+  /* Gọi sau khi trang đọc tiến độ của môn hiện tại từ máy: gộp với tiến độ trong tài khoản. */
+  ACC.afterLoad = function(){
+    if(!enabled || !user) return;
+    const key = cur().key, r = remote[key] || empty();
+    const merged = merge(r, prog);
+    prog = merged;
+    if(JSON.stringify(merged) !== JSON.stringify(merge(r, empty()))) save();   // máy này có phần làm thêm → đẩy lên
+    else { try{ localStorage.setItem(cur().store + '-prog', JSON.stringify(prog)); }catch(e){} }
+  };
 
   ACC.push = function(p){
     if(!enabled || !user) return;
-    clearTimeout(timer);
+    const key = cur().key, snap = JSON.parse(JSON.stringify(p));
+    remote[key] = snap;
+    clearTimeout(timers[key]);
     setState('Đang lưu…');
-    timer = setTimeout(async ()=>{
+    timers[key] = setTimeout(async ()=>{
       const { error } = await sb.from('progress').upsert({
-        user_id:user.id, subject:SUBJECT, display_name:nameOf(user), data:p, updated_at:new Date().toISOString()
+        user_id:user.id, subject:key, display_name:nameOf(user), data:snap, updated_at:new Date().toISOString()
       });
       setState(error ? 'Chưa lưu được (mất mạng?). Sẽ lưu lại ở lần làm bài sau.' : 'Tiến độ đã được lưu vào tài khoản.');
     }, 700);
@@ -101,9 +115,9 @@
   async function logout(){
     if(!confirm('Đăng xuất khỏi tài khoản? Tiến độ vẫn được giữ trong tài khoản.')) return;
     await sb.auth.signOut();
-    user = null; state = '';
-    prog = empty();
-    try{ localStorage.removeItem('vl8-prog'); }catch(e){}
+    user = null; state = ''; remote = {};
+    try{ (typeof SUBJECTS !== 'undefined' ? SUBJECTS : [cur()]).forEach(x => localStorage.removeItem(x.store + '-prog')); }catch(e){}
+    if(typeof loadProg === 'function') loadProg(); else prog = empty();
     home();
   }
 
@@ -149,7 +163,8 @@
       }
       user = res.data.user || (res.data.session && res.data.session.user);
       d.close();
-      await pull();
+      await fetchAll();
+      if(typeof loadProg === 'function') loadProg(); else ACC.afterLoad();
       home();
     };
     if(!d.open) d.showModal();
