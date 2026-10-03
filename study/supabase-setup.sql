@@ -68,6 +68,29 @@ drop trigger if exists chapters_touch on public.chapters;
 create trigger chapters_touch before update on public.chapters
 for each row execute function public.touch_updated_at();
 
+-- ================= TÀI KHOẢN HỌC SINH: LƯU TIẾN ĐỘ =================
+-- Mỗi học sinh một dòng cho mỗi môn. Học sinh chỉ đọc/sửa được tiến độ của chính mình,
+-- admin xem được tiến độ của tất cả học sinh.
+create table if not exists public.progress (
+  user_id      uuid not null references auth.users(id) on delete cascade,
+  subject      text not null,
+  display_name text,
+  data         jsonb not null default '{}'::jsonb,
+  updated_at   timestamptz not null default now(),
+  primary key (user_id, subject)
+);
+alter table public.progress enable row level security;
+
+drop policy if exists "xem_tien_do" on public.progress;
+drop policy if exists "them_tien_do" on public.progress;
+drop policy if exists "sua_tien_do" on public.progress;
+drop policy if exists "xoa_tien_do" on public.progress;
+create policy "xem_tien_do"  on public.progress for select using (auth.uid() = user_id or public.is_admin());
+create policy "them_tien_do" on public.progress for insert with check (auth.uid() = user_id);
+create policy "sua_tien_do"  on public.progress for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "xoa_tien_do"  on public.progress for delete using (auth.uid() = user_id or public.is_admin());
+grant select, insert, update, delete on public.progress to authenticated;
+
 -- >>> SỬA EMAIL DƯỚI ĐÂY THÀNH EMAIL CỦA BẠN <<<
 insert into public.admins (email) values ('quangchieu180901@gmail.com')
 on conflict do nothing;
