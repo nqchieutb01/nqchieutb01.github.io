@@ -1,8 +1,8 @@
-# Sổ tay lớp 8 (Vật lý, Hoá học, Sinh học, Toán): hướng dẫn đưa lên mạng (miễn phí 100%)
+# Sổ tay lớp 8 (Vật lý, Hoá học, Sinh học, Toán, Lịch sử, Địa lý): hướng dẫn đưa lên mạng (miễn phí 100%)
 
-Trang học có 4 môn, chuyển môn bằng các nút ở đầu trang. Có thể mở thẳng một môn bằng link: `.../study/#vat-ly`, `#hoa`, `#sinh`, `#toan`.
+Trang học có 6 môn, chuyển môn bằng các nút ở đầu trang. Có thể mở thẳng một môn bằng link: `.../study/#vat-ly`, `#hoa`, `#sinh`, `#toan`, `#lich-su`, `#dia-ly`.
 
-Nội dung mẫu của từng môn nằm trong các file: `default-data.js` (Vật lý), `data-hoa.js`, `data-sinh.js`, `data-toan.js`. Phần tương tác (thí nghiệm ảo) của các môn mới nằm trong `labs-hoa.js`, `labs-sinh.js`, `labs-toan.js`.
+Nội dung mẫu của từng môn nằm trong các file: `default-data.js` (Vật lý), `data-hoa.js`, `data-sinh.js`, `data-toan.js`, `data-su.js`, `data-dia.js`. Phần tương tác (thí nghiệm ảo, khám phá) của các môn mới nằm trong `labs-hoa.js`, `labs-sinh.js`, `labs-toan.js`, `labs-su.js`, `labs-dia.js`. Lịch sử và Địa lý chỉ có bài học, phần khám phá và câu hỏi ôn tập (không có bài tập nâng cao).
 
 Website gồm 2 trang:
 
@@ -85,4 +85,4 @@ Cách khác cũng miễn phí: Cloudflare Pages (Workers & Pages → Create → 
 
 **Khi nào cần đăng lại website?** Chỉ khi sửa giao diện (file .html). Sửa bài học trong trang admin thì **không** cần.
 
-**Quản trị nhiều môn?** Trong trang admin, chọn môn ở ô chọn trên thanh tiêu đề. Môn nào chưa có dữ liệu trong Supabase thì bấm **Nạp dữ liệu mẫu** của môn đó. Cả 4 môn dùng chung một database (phân biệt bằng cột `subject`). Nếu chưa kết nối Supabase, trang học sinh tự dùng dữ liệu mẫu trong các file `.js`.
+**Quản trị nhiều môn?** Trong trang admin, chọn môn ở ô chọn trên thanh tiêu đề. Môn nào chưa có dữ liệu trong Supabase thì bấm **Nạp dữ liệu mẫu** của môn đó. Cả 6 môn dùng chung một database (phân biệt bằng cột `subject`). Nếu chưa kết nối Supabase, trang học sinh tự dùng dữ liệu mẫu trong các file `.js`.

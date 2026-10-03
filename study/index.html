@@ -204,21 +204,26 @@ body{
 .eg{border-color:var(--accent);border-radius:16px}
 .idx-title,.idx-meta,.bar{display:block}
 /* ===== Thanh chọn môn ===== */
-.subj{max-width:760px;margin:0 auto;padding:12px 16px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.subj{max-width:760px;margin:0 auto;padding:12px 16px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@media(min-width:640px){.subj{grid-template-columns:repeat(6,1fr)}.subj button{flex-direction:column;gap:2px;font-size:14.5px;padding:8px 4px 7px}}
 .subj button{display:flex;flex-direction:column;align-items:center;gap:2px;border:2px solid var(--line);background:var(--card);border-radius:18px;padding:8px 4px 7px;font-weight:800;font-size:14px;color:var(--muted);transition:transform .15s,border-color .15s}
 .subj button .e{font-size:22px;line-height:1.1}
 .subj button:hover{border-color:var(--accent);transform:translateY(-1px)}
 .subj button[aria-pressed="true"]{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;color:#fff;box-shadow:0 4px 14px var(--accent-soft)}
-@media(min-width:560px){.subj button{flex-direction:row;justify-content:center;gap:8px;font-size:15.5px;padding:10px 6px}}
+@media(min-width:420px) and (max-width:639px){.subj button{flex-direction:row;justify-content:center;gap:8px;font-size:15px;padding:9px 6px}}
 @media (prefers-reduced-motion:reduce){.subj button{transition:none}}
 :root{--accent2:#E86FB4}
 body[data-subj="hoa-8"]{--accent:#C9447F;--accent-soft:rgba(201,68,127,.11);--accent2:#F29A6B}
 body[data-subj="sinh-8"]{--accent:#1F8C7A;--accent-soft:rgba(31,140,122,.11);--accent2:#7CCB8E}
 body[data-subj="toan-8"]{--accent:#5A5FD3;--accent-soft:rgba(90,95,211,.11);--accent2:#B07BE8}
+body[data-subj="su-8"]{--accent:#B5533C;--accent-soft:rgba(181,83,60,.11);--accent2:#E8A35C}
+body[data-subj="dia-8"]{--accent:#2C7FB8;--accent-soft:rgba(44,127,184,.11);--accent2:#5CC8B4}
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]) body[data-subj="hoa-8"]{--accent:#FF94C2;--accent-soft:rgba(255,148,194,.14)}
   :root:not([data-theme="light"]) body[data-subj="sinh-8"]{--accent:#72D9C3;--accent-soft:rgba(114,217,195,.14)}
   :root:not([data-theme="light"]) body[data-subj="toan-8"]{--accent:#A9AEFF;--accent-soft:rgba(169,174,255,.14)}
+  :root:not([data-theme="light"]) body[data-subj="su-8"]{--accent:#F2A68C;--accent-soft:rgba(242,166,140,.14)}
+  :root:not([data-theme="light"]) body[data-subj="dia-8"]{--accent:#82C6F2;--accent-soft:rgba(130,198,242,.14)}
   :root:not([data-theme="light"]) .subj button[aria-pressed="true"]{color:#1E1426}
 }
 .idx-no{color:var(--accent)}
@@ -235,9 +240,13 @@ body[data-subj="toan-8"]{--accent:#5A5FD3;--accent-soft:rgba(90,95,211,.11);--ac
 <script src="data-hoa.js"></script>
 <script src="data-sinh.js"></script>
 <script src="data-toan.js"></script>
+<script src="data-su.js"></script>
+<script src="data-dia.js"></script>
 <script src="labs-hoa.js"></script>
 <script src="labs-sinh.js"></script>
 <script src="labs-toan.js"></script>
+<script src="labs-su.js"></script>
+<script src="labs-dia.js"></script>
 <script>
 let CH = [];
 /* =================== CÁC MÔN HỌC =================== */
@@ -257,7 +266,15 @@ const SUBJECTS = [
  { key:'toan-8', hash:'toan', name:'Toán', emoji:'📐', lab:'Khám phá', sheet:'Bảng công thức', sheetSub:'Hằng đẳng thức, định lí, công thức',
    intro:'Toán không chỉ là con số: tính tiền giảm giá, đo chiều cao cây bằng bóng nắng, chọn hãng taxi rẻ hơn. Kéo, thả, quan sát rồi luyện bài từ cơ bản đến nâng cao.',
    strip:'(a + b)² = a² + 2ab + b² &nbsp; a² − b² = (a − b)(a + b) &nbsp; y = ax + b &nbsp; a² + b² = c² &nbsp; V = ⅓·S·h',
-   data:()=>(window.DEFAULT_DATA||{})['toan-8'], store:'toan8' }
+   data:()=>(window.DEFAULT_DATA||{})['toan-8'], store:'toan8' },
+ { key:'su-8', hash:'lich-su', name:'Lịch sử', emoji:'🏛️', lab:'Khám phá', sheet:'Mốc thời gian', sheetSub:'Sự kiện, nhân vật cần nhớ',
+   intro:'Lịch sử là những câu chuyện có thật về con người. Đọc bài, khám phá dòng thời gian và bản đồ, rồi làm câu hỏi ôn tập để nhớ lâu.',
+   strip:'1640 Cách mạng Anh &nbsp; 1776 Tuyên ngôn Độc lập Mỹ &nbsp; 1789 Cách mạng Pháp &nbsp; 1789 Ngọc Hồi, Đống Đa &nbsp; 1858 Pháp đánh Đà Nẵng &nbsp; 1868 Minh Trị duy tân',
+   data:()=>(window.DEFAULT_DATA||{})['su-8'], store:'su8', noEx:true },
+ { key:'dia-8', hash:'dia-ly', name:'Địa lý', emoji:'🗺️', lab:'Khám phá', sheet:'Ghi nhớ nhanh', sheetSub:'Số liệu và ý chính cần thuộc',
+   intro:'Khám phá Việt Nam: núi non, sông ngòi, khí hậu nhiệt đới gió mùa, biển đảo quê hương. Xem bản đồ, biểu đồ tương tác rồi làm câu hỏi ôn tập.',
+   strip:'8°34′B – 23°23′B &nbsp; múi giờ GMT+7 &nbsp; ¾ diện tích là đồi núi &nbsp; 2 360 con sông &nbsp; lãnh hải 12 hải lí &nbsp; vùng đặc quyền 200 hải lí',
+   data:()=>(window.DEFAULT_DATA||{})['dia-8'], store:'dia8', noEx:true }
 ];
 let SUBJ = SUBJECTS[0];
 const DATA_CACHE = {};
@@ -281,7 +298,7 @@ function home(){
     return `<button class="idx-row" data-ch="${i}">
       <span class="idx-no">${i+1}</span>
       <span class="idx-body"><span class="idx-title">${c.title}</span>
-      <span class="idx-meta">Ôn tập đúng ${qb}/${qn}, bài tập đã giải ${ed}/${en}</span>
+      <span class="idx-meta">Ôn tập đúng ${qb}/${qn}${en?`, bài tập đã giải ${ed}/${en}`:''}</span>
       <span class="bar"><i style="width:${pct}%"></i></span></span>
       <span class="idx-icon" aria-hidden="true">${c.icon}</span></button>`;
   }).join('');
@@ -297,13 +314,13 @@ function home(){
     <button data-go="formulas"><b>${SUBJ.sheet}</b><span>${SUBJ.sheetSub}</span></button>
   </div>
   <div class="howto"><b>Cách học mỗi chương:</b>
-    <ol><li>Đọc lý thuyết, chú ý phần tô vàng và các bẫy hay gặp.</li>
+    <ol><li>Đọc ${SUBJ.noEx?'bài':'lý thuyết'}, chú ý phần tô vàng và các bẫy hay gặp.</li>
     <li>Vào phần ${SUBJ.lab.toLowerCase()}, đoán kết quả trước rồi mới kéo, bấm để kiểm tra.</li>
     <li>Làm phần ôn tập trắc nghiệm.</li>
-    <li>Giải bài tập: tự làm ra giấy, chỉ xem gợi ý khi bí, nhập đáp số để kiểm tra.</li></ol>
+    ${SUBJ.noEx?'<li>Mở “Mốc thời gian / Ghi nhớ nhanh” để ôn lại trước khi kiểm tra.</li>':'<li>Giải bài tập: tự làm ra giấy, chỉ xem gợi ý khi bí, nhập đáp số để kiểm tra.</li>'}</ol>
     <button class="reset" id="reset">Xóa tiến độ học</button>
   </div>
-  <footer>Kiến thức theo chương trình ${SUBJ.key==='toan-8'?'Toán 8':'Khoa học tự nhiên 8'} (Kết nối tri thức), kèm một số phần mở rộng thường gặp trong đề thi học sinh giỏi. Tiến độ của từng môn được lưu trên trình duyệt của máy này.</footer>`;
+  <footer>Kiến thức theo chương trình ${SUBJ.key==='toan-8'?'Toán 8':SUBJ.noEx?'Lịch sử và Địa lí 8':'Khoa học tự nhiên 8'} (Kết nối tri thức)${SUBJ.noEx?'':', kèm một số phần mở rộng thường gặp trong đề thi học sinh giỏi'}. Tiến độ của từng môn được lưu trên trình duyệt của máy này.</footer>`;
   app.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>chapter(+b.dataset.ch,'theory'));
   app.querySelector('[data-go=review]').onclick=review;
   app.querySelector('[data-go=formulas]').onclick=formulas;
@@ -312,15 +329,16 @@ function home(){
 }
 
 /* =================== CHƯƠNG =================== */
-const TABS=()=>[['theory','Lý thuyết'],['lab',SUBJ.lab],['quiz','Ôn tập'],['ex','Bài tập']];
+const TABS=()=>[['theory',SUBJ.noEx?'Bài học':'Lý thuyết'],['lab',SUBJ.lab],['quiz','Ôn tập'],['ex','Bài tập']];
 function chapter(i,tab){
   if(stopAnim){stopAnim();stopAnim=null}
   const c = CH[i];
   if(tab==='lab' && !hasLab(c)) tab='theory';
+  if(tab==='ex' && !c.ex.length) tab='quiz';
   app.innerHTML = `
    <button class="back" id="back">← Mục lục</button>
    <div class="ch-head"><div class="no">${SUBJ.name} 8 · Chương ${i+1}</div><h2>${c.title}</h2></div>
-   <div class="tabs" role="tablist">${TABS().filter(([k])=>k!=='lab'||hasLab(c)).map(([k,n],j)=>`<button class="tab" role="tab" aria-selected="${k===tab}" data-tab="${k}"><span class="n">${j+1}</span>${n}</button>`).join('')}</div>
+   <div class="tabs" role="tablist">${TABS().filter(([k])=>(k!=='lab'||hasLab(c))&&(k!=='ex'||c.ex.length)).map(([k,n],j)=>`<button class="tab" role="tab" aria-selected="${k===tab}" data-tab="${k}"><span class="n">${j+1}</span>${n}</button>`).join('')}</div>
    <section id="pane"></section>
    <div class="next">${i<CH.length-1?`<button class="btn ghost" id="nextch">Chương ${i+2}: ${CH[i+1].title}</button>`:`<button class="btn ghost" id="nextch">Ôn tập tổng hợp</button>`}</div>`;
   document.getElementById('back').onclick=home;
